@@ -4,23 +4,23 @@
 
 Preparar MCPs, Skills, Hooks e scripts compartilhados para Codex CLI e Claude Code, com verificações reais. Executar uma etapa por vez e criar commits semânticos pequenos após validação e revisão. Preservar o protótipo e alterações preexistentes.
 
-Há uma decisão de escopo pendente: criar a base executável React + TypeScript + Electron nesta entrega ou preparar apenas o protótipo atual. As validações de main, preload, IPC, build e CDP Electron dependem de uma aplicação executável.
+Escopo confirmado pelo usuário: configurar tooling, MCPs e Hooks, com commits, para o projeto atual. Não criar a base React/Electron nesta entrega. As validações de main, preload, IPC, build e CDP Electron ficam pendentes de uma aplicação executável.
 
 ## Inventário inicial — 2026-09-22
 
-| Item | Encontrado |
-| --- | --- |
-| Sistema | macOS 26.6.2, Darwin 25.6.0, ARM64 |
-| Node.js | 25.9.0 |
-| npm / npx | 11.12.1 |
-| Git | 2.54.0 (Apple Git-157) |
-| GitHub CLI | 2.93.0 |
-| Codex CLI | 0.155.1 |
-| Claude Code | 2.1.122 |
-| Electron / TypeScript / ESLint / Prettier / Playwright | Sem instalação local no projeto; executáveis não encontrados no PATH |
-| Projeto | Protótipo HTML; sem package.json, src, configurações de build ou testes |
-| Remoto | https://github.com/AlexCesarNascimento/flow-testes |
-| Alteração preexistente | sugestoes-skills/melhores-praticas-agentes.md não versionado |
+| Item                                                   | Encontrado                                                              |
+| ------------------------------------------------------ | ----------------------------------------------------------------------- |
+| Sistema                                                | macOS 26.6.2, Darwin 25.6.0, ARM64                                      |
+| Node.js                                                | 25.9.0                                                                  |
+| npm / npx                                              | 11.12.1                                                                 |
+| Git                                                    | 2.54.0 (Apple Git-157)                                                  |
+| GitHub CLI                                             | 2.93.0                                                                  |
+| Codex CLI                                              | 0.155.1                                                                 |
+| Claude Code                                            | 2.1.122                                                                 |
+| Electron / TypeScript / ESLint / Prettier / Playwright | Sem instalação local no projeto; executáveis não encontrados no PATH    |
+| Projeto                                                | Protótipo HTML; sem package.json, src, configurações de build ou testes |
+| Remoto                                                 | https://github.com/AlexCesarNascimento/flow-testes                      |
+| Alteração preexistente                                 | sugestoes-skills/melhores-praticas-agentes.md não versionado            |
 
 Configurações encontradas: `~/.codex/config.toml`, `~/.claude.json`, `~/.claude/settings.json`, `~/.claude/settings.local.json` e `.claude/settings.local.json`. Não copiar credenciais dessas configurações para o repositório. A configuração local do Claude já está ignorada pelo Git no ambiente inspecionado.
 

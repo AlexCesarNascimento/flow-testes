@@ -1,0 +1,16 @@
+node_modules/
+.cache/
+artifacts/
+test-results/
+playwright-report/
+coverage/
+dist/
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.p12
+.claude/settings.local.json
+.mcp.local.json
+.DS_Store
