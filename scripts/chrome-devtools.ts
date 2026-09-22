@@ -14,7 +14,6 @@ const args = [
   '--no-performance-crux',
   '--isolated',
   '--headless',
-  '--no-page-id-routing',
   '--redact-network-headers',
 ];
 if (process.argv.includes('--electron')) {

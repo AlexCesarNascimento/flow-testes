@@ -4,7 +4,9 @@ O FlowTest é um produto desktop para criação visual de testes mobile, pensado
 
 ## Estado atual
 
-O repositório começa com `Design – 00 · FlowTest — protótipo clicável.html`, referência visual e de interação. Ainda não há aplicação Electron, fontes TypeScript, `package.json` ou suíte de testes. Não apresentar a visão de produto abaixo como funcionalidade já implementada. Atualizar esta seção conforme a implementação for validada.
+O protótipo `proto/Design – 00 · FlowTest — protótipo clicável.html` é a referência visual e de interação; o servidor também aceita a localização original na raiz. Há package.json, scripts TypeScript de tooling, verificações de qualidade, testes Node e smoke tests Playwright. Não há aplicação Electron nem fontes React editáveis. Não apresentar a visão de produto abaixo como funcionalidade já implementada.
+
+Comandos: `npm run dev` serve o protótipo em 127.0.0.1:4173; `npm run check` executa checks rápidos; `npm run validate` inclui E2E. Consulte package.json para os scripts atuais e os documentos em docs/ para MCPs, Skills e Hooks.
 
 ## Domínio do produto
 
