@@ -7,5 +7,18 @@
     "type": "stdio",
     "command": "node",
     "args": ["scripts/github-mcp.ts"]
+  },
+  "playwright": {
+    "type": "stdio",
+    "command": "node",
+    "args": [
+      "node_modules/@playwright/mcp/cli.js",
+      "--headless",
+      "--isolated",
+      "--browser",
+      "chromium",
+      "--output-dir",
+      "artifacts/playwright-mcp"
+    ]
   }
 }

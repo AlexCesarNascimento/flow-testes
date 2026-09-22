@@ -8,3 +8,8 @@ startup_timeout_sec = 45
 command = "node"
 args = ["scripts/github-mcp.ts"]
 startup_timeout_sec = 45
+
+[mcp_servers.playwright]
+command = "node"
+args = ["node_modules/@playwright/mcp/cli.js","--headless","--isolated","--browser","chromium","--output-dir","artifacts/playwright-mcp"]
+startup_timeout_sec = 45

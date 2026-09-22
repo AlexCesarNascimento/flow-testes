@@ -31,20 +31,26 @@ try {
   console.log(
     JSON.stringify({
       server: name,
-      tools: list.tools.map((t) => ({
-        name: t.name,
-        inputSchema: t.inputSchema,
-      })),
+      tools: list.tools.map((t) =>
+        tool === '--schema'
+          ? { name: t.name, inputSchema: t.inputSchema }
+          : t.name,
+      ),
     }),
   );
-  if (tool) {
-    const result = await client.callTool(
-      { name: tool, arguments: JSON.parse(input) },
-      undefined,
-      { timeout: 60000 },
-    );
-    console.log(JSON.stringify(result).slice(0, 6000));
-    if (result.isError) process.exitCode = 1;
+  const calls: { name: string; arguments: Record<string, unknown> }[] =
+    tool === '--sequence'
+      ? JSON.parse(input)
+      : tool && tool !== '--schema'
+        ? [{ name: tool, arguments: JSON.parse(input) }]
+        : [];
+  for (const call of calls) {
+    const result = await client.callTool(call, undefined, { timeout: 60000 });
+    console.log(JSON.stringify({ tool: call.name, result }).slice(0, 6000));
+    if (result.isError) {
+      process.exitCode = 1;
+      break;
+    }
   }
 } catch (error) {
   // Não imprimir headers, variáveis de ambiente ou objetos de credenciais.
