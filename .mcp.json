@@ -26,6 +26,11 @@
       "type": "stdio",
       "command": "node",
       "args": ["scripts/chrome-devtools.ts"]
+    },
+    "shadcn": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["node_modules/shadcn/dist/index.js", "mcp"]
     }
   }
 }

@@ -18,3 +18,8 @@ startup_timeout_sec = 45
 command = "node"
 args = ["scripts/chrome-devtools.ts"]
 startup_timeout_sec = 45
+
+[mcp_servers.shadcn]
+command = "node"
+args = ["node_modules/shadcn/dist/index.js","mcp"]
+startup_timeout_sec = 45
