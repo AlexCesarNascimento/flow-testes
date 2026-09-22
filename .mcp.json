@@ -21,6 +21,11 @@
         "--output-dir",
         "artifacts/playwright-mcp"
       ]
+    },
+    "chrome-devtools": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["scripts/chrome-devtools.ts"]
     }
   }
 }
