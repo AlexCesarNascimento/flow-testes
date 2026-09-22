@@ -9,3 +9,4 @@ package-lock.json
 *.html
 sugestoes-skills
 .claude/settings.local.json
+.codex/skills/a11y-debugging
