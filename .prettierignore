@@ -6,7 +6,8 @@ playwright-report
 coverage
 dist
 package-lock.json
-*.html
+proto
+index.html
 sugestoes-skills
 .claude/settings.local.json
 .codex/skills/a11y-debugging

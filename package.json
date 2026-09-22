@@ -8,6 +8,9 @@
   },
   "scripts": {
     "dev": "node scripts/serve-prototype.ts",
+    "dev:app": "vite",
+    "build:app": "vite build",
+    "typecheck:app": "tsc -p tsconfig.app.json --noEmit",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
     "lint": "eslint .",
@@ -15,7 +18,7 @@
     "test": "node --test tests/unit/*.test.ts",
     "test:related": "node scripts/test-related.ts",
     "test:e2e": "playwright test",
-    "check": "npm run format:check && npm run lint && npm run typecheck && npm test",
+    "check": "npm run format:check && npm run lint && npm run typecheck && npm run typecheck:app && npm test",
     "validate": "npm run check && npm run test:e2e"
   },
   "devDependencies": {
@@ -23,12 +26,25 @@
     "@modelcontextprotocol/sdk": "1.30.0",
     "@playwright/mcp": "0.0.82",
     "@playwright/test": "1.63.0",
+    "@tailwindcss/vite": "^4.3.3",
     "@types/node": "26.6.2",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.1.1",
     "chrome-devtools-mcp": "1.9.0",
     "eslint": "10.11.0",
     "prettier": "3.9.8",
     "shadcn": "4.21.0",
+    "tailwindcss": "^4.3.3",
     "typescript": "6.0.3",
-    "typescript-eslint": "8.70.1"
+    "typescript-eslint": "8.70.1",
+    "vite": "^8.3.0"
+  },
+  "dependencies": {
+    "lucide-react": "^1.47.0",
+    "react": "^19.3.0",
+    "react-dom": "^19.3.0",
+    "react-router-dom": "^7.18.4",
+    "zustand": "^5.0.15"
   }
 }
