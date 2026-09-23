@@ -27,6 +27,14 @@ Comandos: `npm run dev` serve o protótipo em 127.0.0.1:4173; `npm run check` ex
 6. UI, mensagens e documentação em português brasileiro. Identificadores de código podem seguir as convenções da stack.
 7. Preservar navegação, identidade visual e design tokens existentes ao alterar a interface. Não adotar temas de outros projetos sem decisão de produto.
 
+## Mandatos de projeto
+
+Os mandatos abaixo são **obrigatórios** em toda implementação. Lê-los antes de criar ou editar qualquer arquivo de código:
+
+- `.claude/mandates/electron.md` — arquitetura Electron: main / preload / renderer, IPC, segurança
+- `.claude/mandates/fsd.md` — Feature-Sliced Design: camadas, regra de dependência, public API
+- `.claude/mandates/scss-bem.md` — estilos: SCSS + BEM, zero inline style, design tokens
+
 ## Trabalho dos agentes
 
 Consultar `AGENTS.md` para o ciclo de implementação e validação, e `docs/SETUP_PLAN.md` para as etapas de preparação do ambiente. Codex e Claude compartilham as mesmas regras de produto. Comandos de desenvolvimento só devem ser documentados como disponíveis depois de criados e testados.
