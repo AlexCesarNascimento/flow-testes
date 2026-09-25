@@ -9,7 +9,14 @@
     "noEmit": true,
     "skipLibCheck": true,
     "allowImportingTsExtensions": true,
-    "types": []
+    "types": [],
+    "paths": {
+      "@/*": ["./src/renderer/src/*"]
+    }
   },
-  "include": ["src/**/*.ts", "src/**/*.tsx", "vite.config.ts"]
+  "include": [
+    "src/renderer/src/**/*.ts",
+    "src/renderer/src/**/*.tsx",
+    "electron.vite.config.ts"
+  ]
 }

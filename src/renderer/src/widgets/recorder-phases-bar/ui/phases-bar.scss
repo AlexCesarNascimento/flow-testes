@@ -1,0 +1,160 @@
+.phases-bar {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  height: 48px;
+  background: var(--color-surface);
+  border-bottom: 1px solid var(--color-border);
+  gap: 4px;
+  flex-shrink: 0;
+
+  &__phases {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex: 1;
+  }
+
+  &__step {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  &__step-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 8px;
+    padding: 4px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+
+    &--active {
+      background: color-mix(in srgb, var(--color-accent) 15%, transparent);
+      border-color: color-mix(in srgb, var(--color-accent) 30%, transparent);
+    }
+  }
+
+  &__step-sep {
+    flex-shrink: 0;
+  }
+
+  &__badge {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--color-elevated);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+
+    &--active {
+      background: var(--color-accent);
+    }
+
+    &--done {
+      background: transparent;
+      border: 2px solid var(--color-accent);
+    }
+  }
+
+  &__badge-number {
+    font-size: 10px;
+    font-weight: 700;
+    color: var(--color-text-3);
+    line-height: 1;
+
+    &--active {
+      color: #000;
+    }
+  }
+
+  &__step-label {
+    font-size: 13px;
+    font-weight: 400;
+    color: var(--color-text-3);
+    white-space: nowrap;
+
+    &--active {
+      font-weight: 600;
+      color: var(--color-text-1);
+    }
+
+    &--done {
+      color: var(--color-text-2);
+    }
+  }
+
+  &__controls {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  &__recording {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 13px;
+    color: var(--color-text-2);
+  }
+
+  &__rec-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-red);
+    flex-shrink: 0;
+
+    &--pulsing {
+      animation: pulse 1.2s infinite;
+    }
+  }
+
+  &__rec-label {
+    font-weight: 600;
+    color: var(--color-text-1);
+  }
+
+  &__rec-time {
+    font-variant-numeric: tabular-nums;
+    color: var(--color-accent);
+    font-weight: 700;
+    font-size: 13px;
+  }
+
+  &__btn {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    border: 1px solid var(--color-border-strong);
+    background: var(--color-elevated);
+    color: var(--color-text-2);
+    cursor: pointer;
+    font-size: 12px;
+
+    &--primary {
+      border: none;
+      background: var(--color-accent);
+      color: #000;
+      font-weight: 600;
+    }
+  }
+}
+
+@keyframes pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.3;
+  }
+}

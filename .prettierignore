@@ -5,6 +5,7 @@ test-results
 playwright-report
 coverage
 dist
+out
 package-lock.json
 proto
 index.html
