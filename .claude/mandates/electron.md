@@ -17,6 +17,7 @@ src/
 ### Main (`src/main/index.ts`)
 
 Responsabilidades exclusivas do main:
+
 - Criar e gerenciar `BrowserWindow`
 - Ciclo de vida da aplicação (`app.on('ready')`, `app.on('window-all-closed')`)
 - Handlers IPC (`ipcMain.handle`)
@@ -31,11 +32,12 @@ Nunca acessar APIs do Electron renderer (`ipcRenderer`, `contextBridge`) no main
 - Nunca expor `require`, `process` ou `shell` diretamente
 
 Exemplo de bridge mínimo:
+
 ```ts
 contextBridge.exposeInMainWorld('api', {
   invoke: (channel: string, ...args: unknown[]) =>
     ipcRenderer.invoke(channel, ...args),
-})
+});
 ```
 
 ### Renderer (`src/renderer/`)

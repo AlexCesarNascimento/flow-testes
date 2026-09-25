@@ -18,10 +18,10 @@ widgets/recorder-steps-panel/
 O `.tsx` importa o `.scss`:
 
 ```tsx
-import './recorder-steps-panel.scss'
+import './recorder-steps-panel.scss';
 
 export function RecorderStepsPanel() {
-  return <div className="recorder-steps-panel">...</div>
+  return <div className="recorder-steps-panel">...</div>;
 }
 ```
 
@@ -77,7 +77,9 @@ O arquivo de entrada (`app/styles/index.scss`) importa tudo:
   width: 200px;
   background: var(--color-sidebar);
 
-  &__nav { padding: 8px; }
+  &__nav {
+    padding: 8px;
+  }
 
   &__nav-item {
     display: flex;
@@ -99,7 +101,9 @@ O arquivo de entrada (`app/styles/index.scss`) importa tudo:
 ```tsx
 // Sidebar.tsx
 <nav className="sidebar__nav">
-  <a className={`sidebar__nav-item${active ? ' sidebar__nav-item--active' : ''}`}>
+  <a
+    className={`sidebar__nav-item${active ? ' sidebar__nav-item--active' : ''}`}
+  >
     Flows
   </a>
 </nav>
@@ -109,13 +113,13 @@ O arquivo de entrada (`app/styles/index.scss`) importa tudo:
 
 Usar kebab-case. O bloco deve ter o mesmo nome do arquivo:
 
-| Arquivo | Bloco BEM |
-|---|---|
-| `sidebar.scss` | `.sidebar` |
-| `phases-bar.scss` | `.phases-bar` |
+| Arquivo                     | Bloco BEM               |
+| --------------------------- | ----------------------- |
+| `sidebar.scss`              | `.sidebar`              |
+| `phases-bar.scss`           | `.phases-bar`           |
 | `recorder-steps-panel.scss` | `.recorder-steps-panel` |
-| `device-frame.scss` | `.device-frame` |
-| `inspector-panel.scss` | `.inspector-panel` |
+| `device-frame.scss`         | `.device-frame`         |
+| `inspector-panel.scss`      | `.inspector-panel`      |
 
 ## Estrutura de um arquivo `.scss`
 

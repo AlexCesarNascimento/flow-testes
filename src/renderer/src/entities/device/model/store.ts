@@ -24,7 +24,12 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
   setStreaming: () => set({ status: 'streaming', errorMessage: null }),
 
   setIdle: () =>
-    set({ status: 'idle', deviceId: null, deviceName: null, errorMessage: null }),
+    set({
+      status: 'idle',
+      deviceId: null,
+      deviceName: null,
+      errorMessage: null,
+    }),
 
   setError: (message) => set({ status: 'error', errorMessage: message }),
 }));

@@ -19,7 +19,9 @@ export function setCanvas(canvas: HTMLCanvasElement | null): void {
 
 export async function init(): Promise<void> {
   if (!_adapter) {
-    console.error('[DeviceMirror] setAdapter() precisa ser chamado antes de init()');
+    console.error(
+      '[DeviceMirror] setAdapter() precisa ser chamado antes de init()',
+    );
     return;
   }
 

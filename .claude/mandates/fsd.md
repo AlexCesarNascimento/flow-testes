@@ -46,28 +46,28 @@ Exportar apenas o que outros slices precisam. Nunca importar de dentro de um sli
 
 ```ts
 // ✅ correto
-import { RecorderStepsPanel } from '@/widgets/recorder-steps-panel'
+import { RecorderStepsPanel } from '@/widgets/recorder-steps-panel';
 
 // ❌ errado
-import { RecorderStepsPanel } from '@/widgets/recorder-steps-panel/ui/RecorderStepsPanel'
+import { RecorderStepsPanel } from '@/widgets/recorder-steps-panel/ui/RecorderStepsPanel';
 ```
 
 ## Onde cada coisa fica
 
-| O quê | Camada |
-|---|---|
-| BrowserRouter, rotas, `<App />` | `app/` |
-| CSS global, design tokens | `app/styles/` ou `shared/styles/` |
-| Zustand store global | `entities/<entidade>/model/` |
-| Um store por entidade: step, recorder, flow, dataset, ambiente | `entities/` |
-| Ação "mudar fase do recorder" | `features/recorder-phase/` |
-| Ação "selecionar step" | `features/step-selection/` |
-| Sidebar, TopBar, AppShell | `widgets/app-shell/` |
-| PhasesBar, StepsPanel, InspectorPanel, DeviceFrame | `widgets/recorder-*/` |
-| Componentes base (Button, Badge, Input) sem domínio | `shared/ui/` |
-| Contratos IPC, tipos de bridge | `shared/api/` |
-| Design tokens SCSS, mixins, reset | `shared/styles/` |
-| Funções utilitárias (formatTime, cn) | `shared/lib/` |
+| O quê                                                          | Camada                            |
+| -------------------------------------------------------------- | --------------------------------- |
+| BrowserRouter, rotas, `<App />`                                | `app/`                            |
+| CSS global, design tokens                                      | `app/styles/` ou `shared/styles/` |
+| Zustand store global                                           | `entities/<entidade>/model/`      |
+| Um store por entidade: step, recorder, flow, dataset, ambiente | `entities/`                       |
+| Ação "mudar fase do recorder"                                  | `features/recorder-phase/`        |
+| Ação "selecionar step"                                         | `features/step-selection/`        |
+| Sidebar, TopBar, AppShell                                      | `widgets/app-shell/`              |
+| PhasesBar, StepsPanel, InspectorPanel, DeviceFrame             | `widgets/recorder-*/`             |
+| Componentes base (Button, Badge, Input) sem domínio            | `shared/ui/`                      |
+| Contratos IPC, tipos de bridge                                 | `shared/api/`                     |
+| Design tokens SCSS, mixins, reset                              | `shared/styles/`                  |
+| Funções utilitárias (formatTime, cn)                           | `shared/lib/`                     |
 
 ## Path aliases
 

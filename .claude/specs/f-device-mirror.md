@@ -23,12 +23,12 @@ Quando nenhum device está conectado, o comportamento atual (mock) é preservado
 
 ## Stack técnica
 
-| Pacote | Responsabilidade |
-|---|---|
-| `@yume-chan/adb` | Protocolo ADB em TypeScript puro |
-| `@yume-chan/adb-backend-webusb` | Transporte USB via WebUSB (Chromium/Electron) |
-| `@yume-chan/scrcpy` | Protocolo de streaming scrcpy em TypeScript |
-| `@yume-chan/scrcpy-decoder-tinyh264` | Decodificador H264 leve para canvas |
+| Pacote                               | Responsabilidade                              |
+| ------------------------------------ | --------------------------------------------- |
+| `@yume-chan/adb`                     | Protocolo ADB em TypeScript puro              |
+| `@yume-chan/adb-backend-webusb`      | Transporte USB via WebUSB (Chromium/Electron) |
+| `@yume-chan/scrcpy`                  | Protocolo de streaming scrcpy em TypeScript   |
+| `@yume-chan/scrcpy-decoder-tinyh264` | Decodificador H264 leve para canvas           |
 
 O `scrcpy-server.jar` é empacotado como recurso estático em `resources/scrcpy-server.jar` e empurrado para o device via ADB durante a conexão.
 
@@ -99,23 +99,23 @@ O Electron bloqueia WebUSB por padrão. O main process precisa:
 ```ts
 // src/main/index.ts — dentro do createWindow()
 session.defaultSession.on('select-usb-device', (event, details, callback) => {
-  event.preventDefault()
+  event.preventDefault();
   // Autoriza o primeiro device Android (vendor IDs comuns)
-  const android = details.deviceList.find(d =>
-    ANDROID_VENDOR_IDS.includes(d.vendorId)
-  )
-  callback(android?.deviceId ?? '')
-})
+  const android = details.deviceList.find((d) =>
+    ANDROID_VENDOR_IDS.includes(d.vendorId),
+  );
+  callback(android?.deviceId ?? '');
+});
 
 session.defaultSession.setPermissionCheckHandler((wc, permission) => {
-  if (permission === 'usb') return true
-  return null
-})
+  if (permission === 'usb') return true;
+  return null;
+});
 
-session.defaultSession.setDevicePermissionHandler(details => {
-  if (details.deviceType === 'usb') return true
-  return false
-})
+session.defaultSession.setDevicePermissionHandler((details) => {
+  if (details.deviceType === 'usb') return true;
+  return false;
+});
 ```
 
 `ANDROID_VENDOR_IDS` = lista dos fabricantes mais comuns (Google, Samsung, Xiaomi, etc.) definida em `shared/config/android-vendors.ts`.
@@ -154,23 +154,23 @@ src/renderer/src/
 
 ## Configurações do stream (padrão)
 
-| Parâmetro | Valor padrão | Motivo |
-|---|---|---|
-| Resolução máxima | 720p | Balanço qualidade × CPU |
-| Bitrate | 2 Mbps | Suficiente para 720p fluido |
-| FPS máximo | 30 | Padrão scrcpy |
-| Codec | H264 | Único suportado pelo TinyH264 sem WebCodecs |
+| Parâmetro        | Valor padrão | Motivo                                      |
+| ---------------- | ------------ | ------------------------------------------- |
+| Resolução máxima | 720p         | Balanço qualidade × CPU                     |
+| Bitrate          | 2 Mbps       | Suficiente para 720p fluido                 |
+| FPS máximo       | 30           | Padrão scrcpy                               |
+| Codec            | H264         | Único suportado pelo TinyH264 sem WebCodecs |
 
 ---
 
 ## Estados visuais do DeviceFrame
 
-| Status da store | O que aparece no DeviceFrame |
-|---|---|
-| `idle` | Mock atual (tela de login animada) + badge "SIMULADO" |
-| `connecting` | Mock com overlay semitransparente + spinner + "Conectando…" |
-| `streaming` | `<canvas>` com stream real + badge "AO VIVO" (verde) |
-| `error` | Mock + badge vermelho "ERRO" + mensagem curta |
+| Status da store | O que aparece no DeviceFrame                                |
+| --------------- | ----------------------------------------------------------- |
+| `idle`          | Mock atual (tela de login animada) + badge "SIMULADO"       |
+| `connecting`    | Mock com overlay semitransparente + spinner + "Conectando…" |
+| `streaming`     | `<canvas>` com stream real + badge "AO VIVO" (verde)        |
+| `error`         | Mock + badge vermelho "ERRO" + mensagem curta               |
 
 O badge no header do DevicePanel (`DeviceFrame`) já existe — apenas o texto e cor mudam.
 
