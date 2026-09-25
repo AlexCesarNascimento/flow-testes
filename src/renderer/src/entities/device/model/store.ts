@@ -31,5 +31,11 @@ export const useDeviceStore = create<DeviceState>()((set) => ({
       errorMessage: null,
     }),
 
-  setError: (message) => set({ status: 'error', errorMessage: message }),
+  setError: (message) =>
+    set({
+      status: 'error',
+      errorMessage: message,
+      deviceId: null,
+      deviceName: null,
+    }),
 }));

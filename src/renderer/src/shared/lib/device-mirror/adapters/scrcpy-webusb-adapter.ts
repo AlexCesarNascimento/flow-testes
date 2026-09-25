@@ -69,10 +69,12 @@ class LocalStorageCredentialStore implements AdbCredentialStore {
 
 // ─── Scrcpy server: download e cache em memória ───────────────────────────────
 
-let _serverBytesCache: Uint8Array | null = null;
+// Chave inclui a versão para invalidar o cache após hot-reload com versão diferente
+const _serverCache = new Map<string, Uint8Array>();
 
 async function fetchServerBytes(): Promise<Uint8Array> {
-  if (_serverBytesCache) return _serverBytesCache;
+  const cached = _serverCache.get(SCRCPY_SERVER_VERSION);
+  if (cached) return cached;
 
   // fetch() direto é bloqueado por CORS em dev (renderer em localhost).
   // Delegamos ao main process via IPC — net.fetch do Electron não tem restrição CORS.
@@ -80,12 +82,15 @@ async function fetchServerBytes(): Promise<Uint8Array> {
     '[ScrcpyAdapter] Baixando scrcpy-server via IPC:',
     SCRCPY_SERVER_URL,
   );
-  const buf = (await window.api.invoke(
-    'fetch-arraybuffer',
-    SCRCPY_SERVER_URL,
-  )) as ArrayBuffer;
-  _serverBytesCache = new Uint8Array(buf);
-  return _serverBytesCache;
+  const buf = await window.api.fetchArrayBuffer(SCRCPY_SERVER_URL);
+  if (!(buf instanceof ArrayBuffer)) {
+    throw new Error(
+      `[ScrcpyAdapter] fetch-arraybuffer retornou tipo inesperado: ${typeof buf}`,
+    );
+  }
+  const bytes = new Uint8Array(buf);
+  _serverCache.set(SCRCPY_SERVER_VERSION, bytes);
+  return bytes;
 }
 
 function toReadableStream(bytes: Uint8Array): ReadableStream<Uint8Array> {
@@ -120,7 +125,10 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
 
     // Devices já autorizados em sessões anteriores
     const existing = await manager.getDevices();
-    console.log('[ScrcpyAdapter] watchDevices iniciado. Devices já autorizados:', existing.map((d) => d.serial));
+    console.log(
+      '[ScrcpyAdapter] watchDevices iniciado. Devices já autorizados:',
+      existing.map((d) => d.serial),
+    );
     for (const backend of existing) {
       callbacks.onConnect({ id: backend.serial, name: backend.serial });
     }

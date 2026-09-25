@@ -7,9 +7,9 @@ coverage
 dist
 out
 package-lock.json
+# bundle gerado; não formatar
 proto
 index.html
-sugestoes-skills
 .claude/settings.local.json
 .claude/worktrees
 .claire/worktrees

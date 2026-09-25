@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react';
 import type { RecorderPhase } from '@/entities/recorder';
 import { useDeviceStore } from '@/entities/device';
-import { setCanvas } from '@/features/device-mirror';
+import { setCanvas, init, dispose } from '@/features/device-mirror';
 import './device-frame.scss';
 
 interface Props {
@@ -41,9 +41,14 @@ export function DeviceFrame({ phase }: Props) {
   const isError = status === 'error';
   const isIdle = status === 'idle';
 
+  // Registra canvas e inicia observação de devices após montagem
   useEffect(() => {
     setCanvas(canvasRef.current);
-    return () => setCanvas(null);
+    void init();
+    return () => {
+      setCanvas(null);
+      void dispose();
+    };
   }, []);
 
   return (
@@ -54,8 +59,7 @@ export function DeviceFrame({ phase }: Props) {
         <div className="device-frame__screen">
           <canvas
             ref={canvasRef}
-            className="device-frame__canvas"
-            style={{ display: isStreaming ? 'block' : 'none' }}
+            className={`device-frame__canvas${isStreaming ? '' : ' device-frame__canvas--hidden'}`}
           />
 
           {isIdle && <IdleState />}

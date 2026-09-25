@@ -25,6 +25,14 @@ export async function init(): Promise<void> {
     return;
   }
 
+  // Guarda contra dupla chamada sem dispose() intermediário (ex: StrictMode)
+  if (_cleanup) {
+    console.warn(
+      '[DeviceMirror] init() chamado sem dispose() anterior — ignorando.',
+    );
+    return;
+  }
+
   const store = useDeviceStore.getState();
 
   try {
@@ -47,12 +55,11 @@ export async function init(): Promise<void> {
         }
       },
 
-      onDisconnect: async () => {
-        try {
-          await _adapter!.stopStream();
-        } catch {
+      // Assinatura alinhada com o contrato de DeviceMirrorPort
+      onDisconnect: () => {
+        _adapter!.stopStream().catch(() => {
           // ignora erro de stop — device já foi desconectado
-        }
+        });
         store.setIdle();
       },
     });
@@ -66,6 +73,7 @@ export async function init(): Promise<void> {
 export async function dispose(): Promise<void> {
   _cleanup?.();
   _cleanup = null;
+  _canvas = null;
   try {
     await _adapter?.stopStream();
   } catch {

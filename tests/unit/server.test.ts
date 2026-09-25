@@ -2,12 +2,19 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { once } from 'node:events';
+import { fileURLToPath } from 'node:url';
+import { join, dirname } from 'node:path';
+
+const SCRIPT = join(
+  dirname(fileURLToPath(import.meta.url)),
+  '../../scripts/serve-prototype.ts',
+);
 
 test(
   'servidor entrega o protótipo e não expõe arquivos internos',
   { timeout: 15000 },
   async () => {
-    const child = spawn(process.execPath, ['scripts/serve-prototype.ts'], {
+    const child = spawn(process.execPath, [SCRIPT], {
       env: { ...process.env, FLOWTEST_PORT: '4174' },
       stdio: ['ignore', 'pipe', 'pipe'],
     });
@@ -34,6 +41,9 @@ test(
         (await fetch('http://127.0.0.1:4174', { method: 'POST' })).status,
         405,
       );
+      const head = await fetch('http://127.0.0.1:4174', { method: 'HEAD' });
+      assert.equal(head.status, 200);
+      assert.equal(await head.text(), '');
     } finally {
       if (child.exitCode === null && child.signalCode === null) {
         const exit = once(child, 'exit');

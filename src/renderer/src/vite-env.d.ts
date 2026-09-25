@@ -7,6 +7,6 @@ declare module '*.scss' {
 
 interface Window {
   api: {
-    invoke: (channel: string, ...args: unknown[]) => Promise<unknown>;
+    fetchArrayBuffer: (url: string) => Promise<ArrayBuffer>;
   };
 }

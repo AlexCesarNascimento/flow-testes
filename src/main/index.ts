@@ -1,7 +1,6 @@
 import { app, BrowserWindow, shell, session, ipcMain, net } from 'electron';
 import { join } from 'path';
 
-// Vendor IDs Android mais comuns (Google, Samsung, Xiaomi, Motorola, OnePlus, etc.)
 const ANDROID_VENDOR_IDS = [
   0x18d1, // Google
   0x04e8, // Samsung
@@ -18,8 +17,48 @@ const ANDROID_VENDOR_IDS = [
   0x0489, // Foxconn
 ];
 
+// Único domínio permitido para o handler fetch-arraybuffer
+const ALLOWED_FETCH_ORIGIN = 'https://github.com';
+
+// Faz download via net.fetch (sem restrição CORS); valida URL antes de buscar.
+// Registrado antes de whenReady — invocado apenas pelo renderer após a janela existir.
+ipcMain.handle(
+  'fetch-arraybuffer',
+  async (event, url: unknown): Promise<ArrayBuffer> => {
+    // Garante que apenas o frame principal da janela principal pode invocar
+    const mainWin = BrowserWindow.getAllWindows()[0];
+    if (
+      !mainWin ||
+      event.senderFrame.routingId !== mainWin.webContents.mainFrame.routingId
+    ) {
+      throw new Error('Origem da requisição não autorizada');
+    }
+
+    if (typeof url !== 'string') throw new Error('url deve ser uma string');
+    let parsed: URL;
+    try {
+      parsed = new URL(url);
+    } catch {
+      throw new Error('URL inválida');
+    }
+    if (parsed.protocol !== 'https:')
+      throw new Error('Somente https: é permitido');
+    if (!parsed.origin.startsWith(ALLOWED_FETCH_ORIGIN))
+      throw new Error('Origem não permitida');
+
+    const response = await net.fetch(url);
+    if (!response.ok) {
+      // URL não é incluída na mensagem ao renderer para evitar vazamento de path/tokens
+      console.error(
+        `[fetch-arraybuffer] HTTP ${response.status} ao baixar ${url}`,
+      );
+      throw new Error(`Falha ao baixar recurso: HTTP ${response.status}`);
+    }
+    return response.arrayBuffer();
+  },
+);
+
 function configureUsbPermissions(): void {
-  // Autoriza automaticamente dispositivos Android quando conectados
   session.defaultSession.on('select-usb-device', (event, details, callback) => {
     event.preventDefault();
     const android = details.deviceList.find((d) =>
@@ -34,14 +73,17 @@ function configureUsbPermissions(): void {
   });
 
   session.defaultSession.setDevicePermissionHandler((details) => {
-    if (details.deviceType === 'usb') return true;
-    return false;
+    if (details.deviceType !== 'usb') return false;
+    // Concede acesso USB apenas à origem do renderer confiável
+    const devUrl = process.env['ELECTRON_RENDERER_URL'];
+    const trustedOrigin = devUrl ?? 'file://';
+    return (
+      details.origin === trustedOrigin || details.origin.startsWith('file://')
+    );
   });
 }
 
 function createWindow(): void {
-  configureUsbPermissions();
-
   const win = new BrowserWindow({
     width: 1280,
     height: 800,
@@ -51,12 +93,12 @@ function createWindow(): void {
       preload: join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
+      sandbox: true,
     },
   });
 
   win.on('ready-to-show', () => win.show());
 
-  // Encaminha logs do renderer para o terminal durante desenvolvimento
   win.webContents.on(
     'console-message',
     (_event, level, message, line, sourceId) => {
@@ -77,29 +119,32 @@ function createWindow(): void {
   );
 
   win.webContents.setWindowOpenHandler(({ url }) => {
-    shell.openExternal(url);
+    try {
+      const { protocol } = new URL(url);
+      if (protocol === 'https:' || protocol === 'http:') {
+        shell.openExternal(url);
+      }
+    } catch {
+      // URL inválida — ignora silenciosamente
+    }
     return { action: 'deny' };
   });
 
   if (process.env['ELECTRON_RENDERER_URL']) {
-    win.loadURL(process.env['ELECTRON_RENDERER_URL']);
+    const devUrl = new URL(process.env['ELECTRON_RENDERER_URL']);
+    const isLocalDev =
+      (devUrl.hostname === '127.0.0.1' || devUrl.hostname === 'localhost') &&
+      devUrl.protocol === 'http:';
+    if (!isLocalDev)
+      throw new Error(`ELECTRON_RENDERER_URL inválida: ${devUrl.origin}`);
+    win.loadURL(devUrl.href);
   } else {
     win.loadFile(join(__dirname, '../renderer/index.html'));
   }
 }
 
-// Faz download via net.fetch (sem restrição de CORS) e devolve ArrayBuffer ao renderer
-ipcMain.handle(
-  'fetch-arraybuffer',
-  async (_event, url: string): Promise<ArrayBuffer> => {
-    const response = await net.fetch(url);
-    if (!response.ok)
-      throw new Error(`HTTP ${response.status} ao baixar ${url}`);
-    return response.arrayBuffer();
-  },
-);
-
 app.whenReady().then(() => {
+  configureUsbPermissions(); // chamado uma vez, não a cada criação de janela
   createWindow();
   app.on('activate', () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow();

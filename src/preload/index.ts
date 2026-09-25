@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer } from 'electron';
 
+// Expõe apenas os canais IPC explicitamente permitidos — sem passthrough genérico.
 contextBridge.exposeInMainWorld('api', {
-  invoke: (channel: string, ...args: unknown[]): Promise<unknown> =>
-    ipcRenderer.invoke(channel, ...args),
+  fetchArrayBuffer: (url: string): Promise<ArrayBuffer> =>
+    ipcRenderer.invoke('fetch-arraybuffer', url) as Promise<ArrayBuffer>,
 });

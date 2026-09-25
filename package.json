@@ -17,7 +17,7 @@
     "format:check": "prettier --check .",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
-    "test": "node --test tests/unit/*.test.ts",
+    "test": "node --test --experimental-strip-types 'tests/unit/**/*.ts'",
     "test:related": "node scripts/test-related.ts",
     "test:e2e": "playwright test",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run typecheck:app && npm test",
@@ -46,7 +46,7 @@
   },
   "dependencies": {
     "@yume-chan/adb": "^2.6.4",
-    "@yume-chan/adb-backend-webusb": "^0.0.19",
+    "@yume-chan/adb-backend-webusb": "0.0.19",
     "@yume-chan/adb-scrcpy": "^2.3.2",
     "@yume-chan/scrcpy": "^2.3.0",
     "@yume-chan/scrcpy-decoder-tinyh264": "^2.1.0",
