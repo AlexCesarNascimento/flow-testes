@@ -74,14 +74,16 @@ let _serverBytesCache: Uint8Array | null = null;
 async function fetchServerBytes(): Promise<Uint8Array> {
   if (_serverBytesCache) return _serverBytesCache;
 
-  console.log('[ScrcpyAdapter] Baixando scrcpy-server de:', SCRCPY_SERVER_URL);
-  const res = await fetch(SCRCPY_SERVER_URL);
-  if (!res.ok)
-    throw new Error(
-      `Falha ao baixar scrcpy-server v${SCRCPY_SERVER_VERSION}: HTTP ${res.status}`,
-    );
-
-  const buf = await res.arrayBuffer();
+  // fetch() direto é bloqueado por CORS em dev (renderer em localhost).
+  // Delegamos ao main process via IPC — net.fetch do Electron não tem restrição CORS.
+  console.log(
+    '[ScrcpyAdapter] Baixando scrcpy-server via IPC:',
+    SCRCPY_SERVER_URL,
+  );
+  const buf = (await window.api.invoke(
+    'fetch-arraybuffer',
+    SCRCPY_SERVER_URL,
+  )) as ArrayBuffer;
   _serverBytesCache = new Uint8Array(buf);
   return _serverBytesCache;
 }
@@ -118,6 +120,7 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
 
     // Devices já autorizados em sessões anteriores
     const existing = await manager.getDevices();
+    console.log('[ScrcpyAdapter] watchDevices iniciado. Devices já autorizados:', existing.map((d) => d.serial));
     for (const backend of existing) {
       callbacks.onConnect({ id: backend.serial, name: backend.serial });
     }

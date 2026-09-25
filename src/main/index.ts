@@ -1,4 +1,4 @@
-import { app, BrowserWindow, shell, session } from 'electron';
+import { app, BrowserWindow, shell, session, ipcMain, net } from 'electron';
 import { join } from 'path';
 
 // Vendor IDs Android mais comuns (Google, Samsung, Xiaomi, Motorola, OnePlus, etc.)
@@ -22,7 +22,9 @@ function configureUsbPermissions(): void {
   // Autoriza automaticamente dispositivos Android quando conectados
   session.defaultSession.on('select-usb-device', (event, details, callback) => {
     event.preventDefault();
-    const android = details.deviceList.find((d) => ANDROID_VENDOR_IDS.includes(d.vendorId));
+    const android = details.deviceList.find((d) =>
+      ANDROID_VENDOR_IDS.includes(d.vendorId),
+    );
     callback(android?.deviceId ?? '');
   });
 
@@ -46,13 +48,33 @@ function createWindow(): void {
     minWidth: 1024,
     minHeight: 600,
     webPreferences: {
-      preload: join(__dirname, '../preload/index.js'),
+      preload: join(__dirname, '../preload/index.cjs'),
       contextIsolation: true,
       nodeIntegration: false,
     },
   });
 
   win.on('ready-to-show', () => win.show());
+
+  // Encaminha logs do renderer para o terminal durante desenvolvimento
+  win.webContents.on(
+    'console-message',
+    (_event, level, message, line, sourceId) => {
+      const prefix =
+        [
+          '[renderer:verbose]',
+          '[renderer:info]',
+          '[renderer:warn]',
+          '[renderer:error]',
+        ][level] ?? '[renderer]';
+      const src = sourceId ? ` (${sourceId.split('/').pop()}:${line})` : '';
+      if (level >= 2) {
+        console.error(`${prefix}${src}`, message);
+      } else {
+        console.log(`${prefix}${src}`, message);
+      }
+    },
+  );
 
   win.webContents.setWindowOpenHandler(({ url }) => {
     shell.openExternal(url);
@@ -65,6 +87,17 @@ function createWindow(): void {
     win.loadFile(join(__dirname, '../renderer/index.html'));
   }
 }
+
+// Faz download via net.fetch (sem restrição de CORS) e devolve ArrayBuffer ao renderer
+ipcMain.handle(
+  'fetch-arraybuffer',
+  async (_event, url: string): Promise<ArrayBuffer> => {
+    const response = await net.fetch(url);
+    if (!response.ok)
+      throw new Error(`HTTP ${response.status} ao baixar ${url}`);
+    return response.arrayBuffer();
+  },
+);
 
 app.whenReady().then(() => {
   createWindow();
