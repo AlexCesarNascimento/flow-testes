@@ -6,6 +6,7 @@ import {
   type AdbPrivateKey,
 } from '@yume-chan/adb';
 import {
+  AdbWebUsbBackend,
   AdbWebUsbBackendManager,
   AdbWebUsbBackendWatcher,
 } from '@yume-chan/adb-backend-webusb';
@@ -18,7 +19,6 @@ import {
 
 import type { DetectedDevice, DeviceMirrorPort } from '../port';
 
-// Scrcpy server v2.7 — deve corresponder ao AdbScrcpyOptions2_7
 const SCRCPY_SERVER_VERSION = '2.7';
 const SCRCPY_SERVER_URL = `https://github.com/Genymobile/scrcpy/releases/download/v${SCRCPY_SERVER_VERSION}/scrcpy-server-v${SCRCPY_SERVER_VERSION}`;
 const SCRCPY_SERVER_PATH = '/data/local/tmp/scrcpy-server.jar';
@@ -48,8 +48,7 @@ class LocalStorageCredentialStore implements AdbCredentialStore {
   }
 
   *iterateKeys(): Iterable<AdbPrivateKey> {
-    const stored = this._load();
-    for (const bytes of stored) {
+    for (const bytes of this._load()) {
       yield { buffer: new Uint8Array(bytes) };
     }
   }
@@ -63,31 +62,22 @@ class LocalStorageCredentialStore implements AdbCredentialStore {
   }
 }
 
-// ─── Scrcpy server download / cache ──────────────────────────────────────────
+// ─── Scrcpy server: download e cache em memória ───────────────────────────────
+
+let _serverBytesCache: Uint8Array | null = null;
 
 async function fetchServerBytes(): Promise<Uint8Array> {
-  const cached = sessionStorage.getItem('flowtest-scrcpy-server');
-  if (cached) {
-    const arr = JSON.parse(cached) as number[];
-    return new Uint8Array(arr);
-  }
+  if (_serverBytesCache) return _serverBytesCache;
 
   const res = await fetch(SCRCPY_SERVER_URL);
-  if (!res.ok) throw new Error(`Falha ao baixar scrcpy-server: ${res.status}`);
+  if (!res.ok) throw new Error(`Falha ao baixar scrcpy-server v${SCRCPY_SERVER_VERSION}: HTTP ${res.status}`);
+
   const buf = await res.arrayBuffer();
-  const bytes = new Uint8Array(buf);
-
-  // Cache na sessão (o servidor é empurrado a cada conexão de qualquer forma)
-  try {
-    sessionStorage.setItem('flowtest-scrcpy-server', JSON.stringify(Array.from(bytes)));
-  } catch {
-    // Ignora se sessionStorage estiver cheio
-  }
-
-  return bytes;
+  _serverBytesCache = new Uint8Array(buf);
+  return _serverBytesCache;
 }
 
-function bytesToReadableStream(bytes: Uint8Array): ReadableStream<Uint8Array> {
+function toReadableStream(bytes: Uint8Array): ReadableStream<Uint8Array> {
   return new ReadableStream({
     start(controller) {
       controller.enqueue(bytes);
@@ -112,27 +102,44 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
     onDisconnect: (deviceId: string) => void;
   }): Promise<() => void> {
     const manager = AdbWebUsbBackendManager.BROWSER;
-    if (!manager) throw new Error('WebUSB não suportado neste ambiente.');
+    if (!manager) throw new Error('WebUSB não disponível neste ambiente. Verifique se o app está rodando no Electron.');
 
-    // Verifica dispositivos já conectados e autorizados
+    // Devices já autorizados em sessões anteriores
     const existing = await manager.getDevices();
     for (const backend of existing) {
       callbacks.onConnect({ id: backend.serial, name: backend.serial });
     }
 
-    // Observa novos dispositivos
-    this._watcher = new AdbWebUsbBackendWatcher((newSerial) => {
+    // Rastreia seriais conectados para detectar desconexões
+    const connected = new Set(existing.map((d) => d.serial));
+
+    this._watcher = new AdbWebUsbBackendWatcher(async (newSerial) => {
       if (newSerial) {
-        callbacks.onConnect({ id: newSerial, name: newSerial });
+        // Device novo plugado — no Electron, requestDevice() é auto-aprovado
+        // pelo handler select-usb-device configurado no main process
+        if (!connected.has(newSerial)) {
+          connected.add(newSerial);
+          callbacks.onConnect({ id: newSerial, name: newSerial });
+        }
       } else {
-        // newSerial undefined = desconexão, mas o watcher não fornece o serial
-        // Workaround: listar devices restantes e inferir quem saiu
-        manager.getDevices().then((remaining) => {
-          const remainingIds = new Set(remaining.map((d) => d.serial));
-          if (!remainingIds.has(newSerial ?? '')) {
-            callbacks.onDisconnect(newSerial ?? 'unknown');
+        // Callback sem serial = algum device foi desconectado
+        // Descobre qual comparando a lista atual com a anterior
+        try {
+          const current = await manager.getDevices();
+          const currentIds = new Set(current.map((d) => d.serial));
+          for (const serial of connected) {
+            if (!currentIds.has(serial)) {
+              connected.delete(serial);
+              callbacks.onDisconnect(serial);
+            }
           }
-        });
+        } catch {
+          // Se getDevices falhar, limpa tudo
+          for (const serial of connected) {
+            callbacks.onDisconnect(serial);
+          }
+          connected.clear();
+        }
       }
     }, navigator.usb);
 
@@ -146,12 +153,18 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
     const manager = AdbWebUsbBackendManager.BROWSER;
     if (!manager) throw new Error('WebUSB não disponível.');
 
+    // Tenta encontrar o device na lista de autorizados
+    let backend: AdbWebUsbBackend | undefined;
     const devices = await manager.getDevices();
-    const backend = devices.find((d) => d.serial === deviceId);
-    if (!backend) throw new Error(`Device ${deviceId} não encontrado.`);
+    backend = devices.find((d) => d.serial === deviceId);
 
-    // O tipo de ReadableWritablePair do @yume-chan/stream-extra é compatível em runtime
-    // mas difere em generics strict entre libs — cast necessário
+    // Se não estiver na lista (device novo no Electron), solicita seleção
+    // O handler no main process auto-aprova dispositivos Android
+    if (!backend) {
+      backend = await manager.requestDevice();
+      if (!backend) throw new Error(`Device ${deviceId} não pôde ser autorizado. Verifique a Depuração USB no Android.`);
+    }
+
     const connection = (await backend.connect()) as unknown as AdbDaemonConnection;
     const transport = await AdbDaemonTransport.authenticate({
       serial: deviceId,
@@ -161,12 +174,12 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
 
     const adb = new Adb(transport);
 
-    // Baixa e empurra o servidor scrcpy para o device
+    // Baixa e empurra o scrcpy-server para o device
     const serverBytes = await fetchServerBytes();
     await AdbScrcpyClient.pushServer(
       adb,
-      // @ts-expect-error: AdbScrcpyClient.pushServer aceita ReadableStream<Uint8Array>
-      bytesToReadableStream(serverBytes),
+      // @ts-expect-error: compatibilidade de tipos entre @yume-chan/stream-extra e ReadableStream nativo
+      toReadableStream(serverBytes),
     );
 
     const options = new AdbScrcpyOptions2_7({
@@ -181,9 +194,8 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
     this._client = await AdbScrcpyClient.start(adb, SCRCPY_SERVER_PATH, options);
 
     const videoStream = await this._client.videoStream;
-    if (!videoStream) throw new Error('Stream de vídeo não disponível.');
+    if (!videoStream) throw new Error('Stream de vídeo não disponível — verifique as permissões do dispositivo.');
 
-    // Configura o canvas
     canvas.width = videoStream.width || 360;
     canvas.height = videoStream.height || 640;
 
@@ -195,12 +207,11 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
 
     this._abortController = new AbortController();
 
-    // Conecta o stream ao decoder (não-bloqueante)
     videoStream.stream
       .pipeTo(this._decoder.writable, { signal: this._abortController.signal })
-      .catch((err) => {
+      .catch((err: unknown) => {
         if (err instanceof Error && err.name !== 'AbortError') {
-          console.error('[ScrcpyAdapter] Erro no stream:', err);
+          console.error('[ScrcpyAdapter] Erro no stream de vídeo:', err);
         }
       });
   }
