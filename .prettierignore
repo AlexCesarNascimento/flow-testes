@@ -11,4 +11,6 @@ proto
 index.html
 sugestoes-skills
 .claude/settings.local.json
+.claude/worktrees
+.claire/worktrees
 .codex/skills/a11y-debugging

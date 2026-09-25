@@ -43,7 +43,10 @@ class LocalStorageCredentialStore implements AdbCredentialStore {
     const key: AdbPrivateKey = { buffer: new Uint8Array(exported) };
     const stored = this._load();
     stored.push(Array.from(key.buffer));
-    localStorage.setItem(LocalStorageCredentialStore.STORAGE_KEY, JSON.stringify(stored));
+    localStorage.setItem(
+      LocalStorageCredentialStore.STORAGE_KEY,
+      JSON.stringify(stored),
+    );
     return key;
   }
 
@@ -55,7 +58,9 @@ class LocalStorageCredentialStore implements AdbCredentialStore {
 
   private _load(): number[][] {
     try {
-      return JSON.parse(localStorage.getItem(LocalStorageCredentialStore.STORAGE_KEY) ?? '[]');
+      return JSON.parse(
+        localStorage.getItem(LocalStorageCredentialStore.STORAGE_KEY) ?? '[]',
+      );
     } catch {
       return [];
     }
@@ -69,8 +74,12 @@ let _serverBytesCache: Uint8Array | null = null;
 async function fetchServerBytes(): Promise<Uint8Array> {
   if (_serverBytesCache) return _serverBytesCache;
 
+  console.log('[ScrcpyAdapter] Baixando scrcpy-server de:', SCRCPY_SERVER_URL);
   const res = await fetch(SCRCPY_SERVER_URL);
-  if (!res.ok) throw new Error(`Falha ao baixar scrcpy-server v${SCRCPY_SERVER_VERSION}: HTTP ${res.status}`);
+  if (!res.ok)
+    throw new Error(
+      `Falha ao baixar scrcpy-server v${SCRCPY_SERVER_VERSION}: HTTP ${res.status}`,
+    );
 
   const buf = await res.arrayBuffer();
   _serverBytesCache = new Uint8Array(buf);
@@ -102,7 +111,10 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
     onDisconnect: (deviceId: string) => void;
   }): Promise<() => void> {
     const manager = AdbWebUsbBackendManager.BROWSER;
-    if (!manager) throw new Error('WebUSB não disponível neste ambiente. Verifique se o app está rodando no Electron.');
+    if (!manager)
+      throw new Error(
+        'WebUSB não disponível neste ambiente. Verifique se o app está rodando no Electron.',
+      );
 
     // Devices já autorizados em sessões anteriores
     const existing = await manager.getDevices();
@@ -149,33 +161,48 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
     };
   }
 
-  async startStream(deviceId: string, canvas: HTMLCanvasElement): Promise<void> {
+  async startStream(
+    deviceId: string,
+    canvas: HTMLCanvasElement,
+  ): Promise<void> {
     const manager = AdbWebUsbBackendManager.BROWSER;
     if (!manager) throw new Error('WebUSB não disponível.');
 
     // Tenta encontrar o device na lista de autorizados
     let backend: AdbWebUsbBackend | undefined;
     const devices = await manager.getDevices();
+    console.log(
+      '[ScrcpyAdapter] Devices autorizados:',
+      devices.map((d) => d.serial),
+    );
     backend = devices.find((d) => d.serial === deviceId);
 
-    // Se não estiver na lista (device novo no Electron), solicita seleção
-    // O handler no main process auto-aprova dispositivos Android
     if (!backend) {
+      console.log(
+        '[ScrcpyAdapter] Device não encontrado em getDevices(), tentando requestDevice()...',
+      );
       backend = await manager.requestDevice();
-      if (!backend) throw new Error(`Device ${deviceId} não pôde ser autorizado. Verifique a Depuração USB no Android.`);
+      if (!backend)
+        throw new Error(
+          `Device ${deviceId} não pôde ser autorizado. Verifique a Depuração USB no Android.`,
+        );
     }
 
-    const connection = (await backend.connect()) as unknown as AdbDaemonConnection;
+    console.log('[ScrcpyAdapter] Conectando ao device:', backend.serial);
+    const connection =
+      (await backend.connect()) as unknown as AdbDaemonConnection;
+    console.log('[ScrcpyAdapter] Autenticando ADB...');
     const transport = await AdbDaemonTransport.authenticate({
       serial: deviceId,
       connection,
       credentialStore: this._credentialStore,
     });
 
+    console.log('[ScrcpyAdapter] ADB autenticado. Iniciando scrcpy...');
     const adb = new Adb(transport);
 
-    // Baixa e empurra o scrcpy-server para o device
     const serverBytes = await fetchServerBytes();
+    console.log('[ScrcpyAdapter] Server baixado, enviando para device...');
     await AdbScrcpyClient.pushServer(
       adb,
       // @ts-expect-error: compatibilidade de tipos entre @yume-chan/stream-extra e ReadableStream nativo
@@ -191,10 +218,26 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
       control: false,
     });
 
-    this._client = await AdbScrcpyClient.start(adb, SCRCPY_SERVER_PATH, options);
+    this._client = await AdbScrcpyClient.start(
+      adb,
+      SCRCPY_SERVER_PATH,
+      options,
+    );
 
+    console.log(
+      '[ScrcpyAdapter] Cliente scrcpy iniciado. Aguardando videoStream...',
+    );
     const videoStream = await this._client.videoStream;
-    if (!videoStream) throw new Error('Stream de vídeo não disponível — verifique as permissões do dispositivo.');
+    if (!videoStream)
+      throw new Error(
+        'Stream de vídeo não disponível — verifique as permissões do dispositivo.',
+      );
+    console.log(
+      '[ScrcpyAdapter] VideoStream disponível:',
+      videoStream.width,
+      'x',
+      videoStream.height,
+    );
 
     canvas.width = videoStream.width || 360;
     canvas.height = videoStream.height || 640;
