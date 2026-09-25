@@ -5,6 +5,7 @@ test-results/
 playwright-report/
 coverage/
 dist/
+out/
 .env
 .env.*
 !.env.example
@@ -12,5 +13,7 @@ dist/
 *.key
 *.p12
 .claude/settings.local.json
+.claude/worktrees/
+.claire/
 .mcp.local.json
 .DS_Store
