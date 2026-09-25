@@ -138,7 +138,11 @@ export function StepsPanel({
         </span>
         <span className="steps-panel__count">{visibleSteps.length}</span>
         <div className="steps-panel__spacer" />
-        <button className="steps-panel__header-btn">
+        <button
+          className="steps-panel__header-btn"
+          disabled
+          aria-label="Adicionar Assert"
+        >
           <svg
             width="11"
             height="11"
@@ -146,13 +150,18 @@ export function StepsPanel({
             fill="none"
             stroke="var(--color-accent)"
             strokeWidth="2"
+            aria-hidden="true"
           >
             <polyline points="9 11 12 14 22 4" />
             <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11" />
           </svg>
           Assert
         </button>
-        <button className="steps-panel__header-btn">
+        <button
+          className="steps-panel__header-btn"
+          disabled
+          aria-label="Adicionar Wait"
+        >
           <svg
             width="11"
             height="11"
@@ -160,6 +169,7 @@ export function StepsPanel({
             fill="none"
             stroke="var(--color-purple)"
             strokeWidth="2"
+            aria-hidden="true"
           >
             <circle cx="12" cy="12" r="10" />
             <polyline points="12 6 12 12 16 14" />
@@ -200,7 +210,17 @@ export function StepsPanel({
           return (
             <div
               key={step.id}
+              role={isEditing ? 'button' : undefined}
+              tabIndex={isEditing ? 0 : undefined}
+              aria-pressed={isEditing ? isSelected : undefined}
+              aria-label={`Step ${step.id}: ${step.label}`}
               onClick={() => isEditing && onSelectStep(step.id)}
+              onKeyDown={(e) => {
+                if (isEditing && (e.key === 'Enter' || e.key === ' ')) {
+                  e.preventDefault();
+                  onSelectStep(step.id);
+                }
+              }}
               className={`steps-panel__item${isEditing ? ' steps-panel__item--clickable' : ''}${isSelected ? ' steps-panel__item--active' : ''}`}
             >
               <div

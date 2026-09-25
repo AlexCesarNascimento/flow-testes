@@ -5,3 +5,4 @@ export {
   init,
   dispose,
 } from './model/DeviceMirrorService';
+export { ScrcpyWebUsbAdapter } from './adapters/scrcpy-webusb-adapter';

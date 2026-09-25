@@ -22,18 +22,23 @@ function TabBar({
 }) {
   const navigate = useNavigate();
   return (
-    <div className="tab-bar">
+    <div className="tab-bar" role="tablist" aria-label="Seções de dados">
       {TABS.map((t) => {
         const isActive = t.id === active;
         return (
           <button
             key={t.id}
+            role="tab"
+            aria-selected={isActive}
+            aria-controls={`tabpanel-${t.id}`}
+            id={`tab-${t.id}`}
             onClick={() => navigate(`/dados/${t.id}`)}
             className={`tab-bar__tab${isActive ? ' tab-bar__tab--active' : ''}`}
           >
             {t.label}
             <span
               className={`tab-bar__count${isActive ? ' tab-bar__count--active' : ' tab-bar__count--inactive'}`}
+              aria-label={`${counts[t.id]} itens`}
             >
               {counts[t.id]}
             </span>

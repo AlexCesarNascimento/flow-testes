@@ -10,7 +10,11 @@ interface Props {
 
 function IdleState() {
   return (
-    <div className="device-frame__idle">
+    <div
+      className="device-frame__idle"
+      role="status"
+      aria-label="Aguardando dispositivo"
+    >
       <svg
         className="device-frame__idle-icon"
         viewBox="0 0 24 24"
@@ -19,6 +23,7 @@ function IdleState() {
         strokeWidth="1.5"
         strokeLinecap="round"
         strokeLinejoin="round"
+        aria-hidden="true"
       >
         <rect x="5" y="2" width="14" height="20" rx="2" />
         <path d="M12 18h.01" />
@@ -35,7 +40,8 @@ function IdleState() {
 export function DeviceFrame({ phase }: Props) {
   const isLive = phase === 'gravar';
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const { status, errorMessage } = useDeviceStore();
+  const status = useDeviceStore((s) => s.status);
+  const errorMessage = useDeviceStore((s) => s.errorMessage);
   const isStreaming = status === 'streaming';
   const isConnecting = status === 'connecting';
   const isError = status === 'error';
@@ -65,14 +71,24 @@ export function DeviceFrame({ phase }: Props) {
           {isIdle && <IdleState />}
 
           {isConnecting && (
-            <div className="device-frame__overlay">
-              <div className="device-frame__spinner" />
+            <div
+              className="device-frame__overlay"
+              role="status"
+              aria-live="polite"
+              aria-busy="true"
+              aria-label="Conectando ao dispositivo"
+            >
+              <div className="device-frame__spinner" aria-hidden="true" />
               <span className="device-frame__overlay-label">Conectando…</span>
             </div>
           )}
 
           {isError && (
-            <div className="device-frame__overlay device-frame__overlay--error">
+            <div
+              className="device-frame__overlay device-frame__overlay--error"
+              role="alert"
+              aria-live="assertive"
+            >
               <svg
                 width="28"
                 height="28"
@@ -81,12 +97,18 @@ export function DeviceFrame({ phase }: Props) {
                 stroke="currentColor"
                 strokeWidth="1.5"
                 strokeLinecap="round"
+                aria-hidden="true"
               >
                 <circle cx="12" cy="12" r="10" />
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
               </svg>
-              <span className="device-frame__error-msg">{errorMessage}</span>
+              <span className="device-frame__error-msg">
+                {errorMessage ?? 'Falha ao conectar ao dispositivo.'}
+              </span>
+              <span className="device-frame__error-hint">
+                Verifique a depuração USB e reconecte o cabo.
+              </span>
             </div>
           )}
         </div>
@@ -98,6 +120,7 @@ export function DeviceFrame({ phase }: Props) {
             <button
               className="device-frame__zoom-btn"
               aria-label="Reduzir zoom"
+              disabled
             >
               −
             </button>
@@ -105,13 +128,14 @@ export function DeviceFrame({ phase }: Props) {
             <button
               className="device-frame__zoom-btn"
               aria-label="Aumentar zoom"
+              disabled
             >
               +
             </button>
           </div>
           <div className="device-frame__action-row">
             {['Reiniciar', 'Screenshot', 'Voltar'].map((label) => (
-              <button key={label} className="device-frame__action-btn">
+              <button key={label} className="device-frame__action-btn" disabled>
                 {label}
               </button>
             ))}

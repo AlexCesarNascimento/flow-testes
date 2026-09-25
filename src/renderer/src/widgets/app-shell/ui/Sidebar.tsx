@@ -56,14 +56,29 @@ function CollapsibleGroup({
   const [open, setOpen] = useState(defaultOpen);
   return (
     <>
-      <button onClick={() => setOpen(!open)} className="sidebar__section-label">
+      <button
+        onClick={() => setOpen(!open)}
+        className="sidebar__section-label"
+        aria-expanded={open}
+        aria-controls={`sidebar-group-${label}`}
+      >
         <span className="sidebar__section-label-left">
           {icon}
           {label}
         </span>
-        {open ? <ChevronDown size={12} /> : <ChevronRight size={12} />}
+        {open ? (
+          <ChevronDown size={12} aria-hidden="true" />
+        ) : (
+          <ChevronRight size={12} aria-hidden="true" />
+        )}
       </button>
-      {open && items.map((item) => <NavButton key={item.to} item={item} />)}
+      {open && (
+        <div id={`sidebar-group-${label}`}>
+          {items.map((item) => (
+            <NavButton key={item.to} item={item} />
+          ))}
+        </div>
+      )}
     </>
   );
 }
@@ -97,7 +112,7 @@ export function Sidebar() {
   void ambientes;
 
   return (
-    <aside className="sidebar">
+    <aside className="sidebar" aria-label="Navegação principal">
       <div className="sidebar__logo">
         <div className="sidebar__logo-icon">
           <Play size={14} fill="white" color="white" />

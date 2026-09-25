@@ -17,7 +17,10 @@ import {
   WebCodecsVideoDecoder,
 } from '@yume-chan/scrcpy-decoder-webcodecs';
 
-import type { DetectedDevice, DeviceMirrorPort } from '../port';
+import type {
+  DetectedDevice,
+  DeviceMirrorPort,
+} from '@/shared/lib/device-mirror';
 
 const SCRCPY_SERVER_VERSION = '2.7';
 const SCRCPY_SERVER_URL = `https://github.com/Genymobile/scrcpy/releases/download/v${SCRCPY_SERVER_VERSION}/scrcpy-server-v${SCRCPY_SERVER_VERSION}`;

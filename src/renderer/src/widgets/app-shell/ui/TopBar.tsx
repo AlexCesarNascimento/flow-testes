@@ -8,7 +8,8 @@ type BreadcrumbSegment = { label: string };
 
 function useBreadcrumb(): { segments: BreadcrumbSegment[]; hint: string } {
   const { pathname } = useLocation();
-  const { recorderTitle, recorderPhase } = useRecorderStore();
+  const recorderTitle = useRecorderStore((s) => s.recorderTitle);
+  const recorderPhase = useRecorderStore((s) => s.recorderPhase);
 
   if (pathname.startsWith('/recorder')) {
     return {
@@ -68,7 +69,8 @@ function useBreadcrumb(): { segments: BreadcrumbSegment[]; hint: string } {
 }
 
 export function TopBar() {
-  const { ambiente, device } = useAmbienteStore();
+  const ambiente = useAmbienteStore((s) => s.ambiente);
+  const device = useAmbienteStore((s) => s.device);
   const { segments, hint } = useBreadcrumb();
 
   return (
@@ -96,20 +98,36 @@ export function TopBar() {
       )}
 
       <div className="top-bar__controls">
-        <button className="top-bar__button">
-          <Tag size={12} />
+        <button
+          className="top-bar__button"
+          disabled
+          aria-label={`Ambiente: ${ambiente}`}
+        >
+          <Tag size={12} aria-hidden="true" />
           <span className="top-bar__button-label">Ambiente</span>
           <span className="top-bar__button-value">{ambiente}</span>
-          <ChevronRight size={11} className="top-bar__chevron-down" />
+          <ChevronRight
+            size={11}
+            className="top-bar__chevron-down"
+            aria-hidden="true"
+          />
         </button>
 
-        <button className="top-bar__button">
-          <span className="top-bar__device-dot" />
+        <button
+          className="top-bar__button"
+          disabled
+          aria-label={`Dispositivo: ${device}`}
+        >
+          <span className="top-bar__device-dot" aria-hidden="true" />
           {device}
         </button>
 
-        <button className="top-bar__button top-bar__button--icon-only">
-          <Settings size={13} />
+        <button
+          className="top-bar__button top-bar__button--icon-only"
+          disabled
+          aria-label="Configurações"
+        >
+          <Settings size={13} aria-hidden="true" />
         </button>
       </div>
     </header>

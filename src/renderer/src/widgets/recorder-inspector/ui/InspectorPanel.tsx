@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import type { Step, Selector } from '@/entities/step';
 import type { RecorderPhase } from '@/entities/recorder';
 import './inspector-panel.scss';
@@ -49,14 +50,29 @@ const STEP_TYPE_COLORS: Record<string, string> = {
 };
 
 function CopyButton({ value }: { value: string }) {
-  const handleCopy = () => navigator.clipboard.writeText(value).catch(() => {});
+  const [label, setLabel] = useState('Copiar');
+
+  const handleCopy = () => {
+    navigator.clipboard.writeText(value).then(
+      () => {
+        setLabel('Copiado!');
+        setTimeout(() => setLabel('Copiar'), 1500);
+      },
+      () => {
+        setLabel('Erro');
+        setTimeout(() => setLabel('Copiar'), 1500);
+      },
+    );
+  };
+
   return (
     <button
       onClick={handleCopy}
-      title="Copiar"
+      title="Copiar para área de transferência"
+      aria-label={`Copiar valor: ${value}`}
       className="inspector-panel__copy-btn"
     >
-      Copiar
+      {label}
     </button>
   );
 }
@@ -175,10 +191,17 @@ function InspectorEditar({ step }: { step: Step | null }) {
             <div className="inspector-panel__field-label">VALOR DIGITADO</div>
             <div className="inspector-panel__input-row">
               <input
+                id="inspector-step-value"
+                aria-label="Valor digitado no step"
                 defaultValue={step.value ?? step.label}
                 className="inspector-panel__input"
               />
-              <button className="inspector-panel__var-btn">{'{ } Var'}</button>
+              <button
+                className="inspector-panel__var-btn"
+                aria-label="Transformar valor em variável"
+              >
+                {'{ } Var'}
+              </button>
             </div>
             <div className="inspector-panel__input-hint">
               Transformar em variável
@@ -259,16 +282,28 @@ function InspectorSalvar({
         </div>
 
         <div>
-          <div className="inspector-panel__form-label">Nome da Action</div>
+          <label
+            htmlFor="inspector-action-name"
+            className="inspector-panel__form-label"
+          >
+            Nome da Action
+          </label>
           <input
+            id="inspector-action-name"
             defaultValue="Fazer login"
             className="inspector-panel__input-wide"
           />
         </div>
 
         <div>
-          <div className="inspector-panel__form-label">Pasta</div>
+          <label
+            htmlFor="inspector-action-folder"
+            className="inspector-panel__form-label"
+          >
+            Pasta
+          </label>
           <input
+            id="inspector-action-folder"
             defaultValue="Autenticação"
             className="inspector-panel__input-wide"
           />

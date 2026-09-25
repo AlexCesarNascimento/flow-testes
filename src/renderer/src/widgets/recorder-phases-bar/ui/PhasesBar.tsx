@@ -64,6 +64,8 @@ export function PhasesBar({
               <button
                 onClick={() => onPhaseChange(ph.key)}
                 className={`phases-bar__step-btn${isActive ? ' phases-bar__step-btn--active' : ''}`}
+                aria-current={isActive ? 'step' : undefined}
+                aria-label={`Fase ${ph.n}: ${ph.label}${isDone ? ' (concluída)' : isActive ? ' (atual)' : ''}`}
               >
                 <div
                   className={`phases-bar__badge${isActive ? ' phases-bar__badge--active' : isDone ? ' phases-bar__badge--done' : ''}`}
@@ -111,8 +113,18 @@ export function PhasesBar({
             </span>
           </div>
 
-          <button className="phases-bar__btn">
-            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+          <button
+            className="phases-bar__btn"
+            disabled
+            aria-label="Pausar gravação"
+          >
+            <svg
+              width="10"
+              height="10"
+              viewBox="0 0 24 24"
+              fill="currentColor"
+              aria-hidden="true"
+            >
               <rect x="6" y="4" width="4" height="16" />
               <rect x="14" y="4" width="4" height="16" />
             </svg>

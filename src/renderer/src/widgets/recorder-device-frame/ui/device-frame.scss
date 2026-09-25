@@ -122,6 +122,13 @@
     max-width: 200px;
   }
 
+  &__error-hint {
+    font-size: 10px;
+    color: var(--color-text-3, #555);
+    max-width: 200px;
+    line-height: 1.5;
+  }
+
   &__controls {
     display: flex;
     flex-direction: column;
@@ -149,8 +156,13 @@
     justify-content: center;
     line-height: 1;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: var(--color-border, #333);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
   }
 
@@ -176,8 +188,13 @@
     padding: 5px 4px;
     cursor: pointer;
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: var(--color-border, #333);
+    }
+
+    &:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
     }
   }
 }
