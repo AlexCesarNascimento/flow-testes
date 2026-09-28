@@ -15,19 +15,25 @@
 
 ## Evidências
 
-| Comando                       | Resultado                                                                                     |
-| ----------------------------- | --------------------------------------------------------------------------------------------- |
-| `npm run validate`            | Aprovado: Prettier, ESLint, TypeScript tooling/renderer, 27 testes Node e 16 E2E do protótipo |
-| `npm run test:recorder`       | Aprovado: 8 regressões no Electron com renderer real e transporte Android simulado            |
-| `npm run build`               | Aprovado: main, preload e renderer                                                            |
-| `git diff --check`            | Aprovado                                                                                      |
-| `node scripts/link-skills.ts` | Links de Claude e Codex confirmados; skill ecc-flowtest descoberta no catálogo da sessão      |
+| Comando                       | Resultado                                                                                                                           |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------- |
+| `npm run validate`            | Aprovado: Prettier, ESLint, TypeScript tooling/renderer, 27 testes Node e 16 E2E do protótipo                                       |
+| `npm run test:recorder`       | Aprovado: 8 regressões do recorder + 1 regressão específica de variável no Electron com renderer real e transporte Android simulado |
+| `npm run build`               | Aprovado: main, preload e renderer                                                                                                  |
+| `git diff --check`            | Aprovado                                                                                                                            |
+| `node scripts/link-skills.ts` | Links de Claude e Codex confirmados; skill ecc-flowtest descoberta no catálogo da sessão                                            |
 
 Os oito testes Electron cobrem progresso/delay/reconhecimento, cancelamento, device ausente, captura de transições com e sem toque, campo agência com ID repetido abertura de app pelo launcher, timeout de abertura sem resposta e execução da lista inteira mesmo quando apenas o primeiro step está marcado. O teste de agência altera os bounds e verifica que o comando usa o centro atual do campo identificado, sem reutilizar coordenadas gravadas.
 
 O teste do cronômetro verifica avanço durante a execução e congelamento após concluir. A pesquisa do Chrome Recorder e sugestões pendentes estão em `docs/CHROME_RECORDER_RESEARCH.md`.
 
 Screenshot inspecionada: `artifacts/recorder-playback-delay.png`. Inspeção interativa do renderer por Playwright MCP confirmou DOM e abertura/fechamento do formulário; a leitura final de console não retornou erros. O MCP no navegador não substitui os testes Electron acima.
+
+## Correção de variável no input
+
+O novo teste reproduziu a falha: após selecionar agencia, o store continha {{agencia}}, mas o input ainda mostrava o valor inicial. O campo agora é controlado pelo step, persiste edições e o botão de variável direciona o foco ao seletor existente. O teste aprovado também verifica resolução da massa ativa, foco por combinação de seletores com ID repetido e comando de digitação do valor resolvido.
+
+Validação adicional: `npm run test:recorder -- --grep 'vincular variável'` aprovado (1 caso), `npm run check` e build aprovados. A primeira tentativa de check dentro do sandbox não iniciou o servidor do teste; foi repetida com a permissão necessária. A imagem referenciada pelo usuário não veio anexada; não há confirmação visual do erro no device real.
 
 ## Limitações e falhas resolvidas
 
