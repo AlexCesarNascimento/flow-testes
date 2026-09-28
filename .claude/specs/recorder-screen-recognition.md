@@ -36,7 +36,7 @@ Reutilizar o transporte WebUSB existente sem ampliar IPC, permissões ou introdu
 
 ## Delay entre passos
 
-Por orientação do usuário, a lista exibe “Delay até o próximo” em segundos, editável entre 0 e 300 s, em vez de mostrar o instante da gravação. `Step.delayAfterMs` guarda milissegundos e é preservado no JSON v1.1. Captura preenche o delay do step anterior com o intervalo observado até o seguinte (limitado a 300 s); último step começa com zero. Fluxos antigos sem o campo usam zero. Playback espera o delay após sucesso e antes de iniciar o próximo step; último step não espera. Cancelamento interrompe também esse intervalo. O tempo histórico permanece apenas como metadado legado de exportação.
+Por orientação do usuário, a lista exibe “Delay máx. até próximo” em segundos, editável entre 0 e 300 s, em vez de mostrar o instante da gravação. `Step.delayAfterMs` guarda milissegundos e é preservado no JSON v1.1. Captura preenche o delay do step anterior com o intervalo observado até o seguinte (limitado a 300 s); último step começa com zero. Fluxos antigos sem o campo usam zero. Playback usa o delay como limite máximo após sucesso: para tela ou elemento verificável, avança antes se a condição estiver pronta; para step sem condição observável, espera integralmente. O próximo step revalida antes da ação. Último step não espera. Cancelamento interrompe também esse intervalo. O tempo histórico permanece apenas como metadado legado de exportação.
 
 ## Seletores sem fallback por coordenadas
 

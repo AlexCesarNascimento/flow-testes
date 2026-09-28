@@ -26,7 +26,7 @@ O Recorder permite timeout por fluxo/step, asserts de elementos, replay lento e 
 
 1. Timeout editável por step e evidência de falha: última assinatura observada e screenshot, com cuidado para não persistir dados sensíveis sem intenção.
 2. Breakpoints e executar até um step, úteis para investigar login e navegação.
-3. Separar delay voluntário de duração humana de gravação: oferecer modo rápido por condições e modo com os delays gravados. Não alterar automaticamente os delays existentes.
+3. Oferecer um modo de espera integral para quem quiser reproduzir a cadência humana gravada; o Play padrão antecipa o delay quando a condição seguinte estiver pronta. Não alterar automaticamente os valores exportados.
 4. Captura semântica de digitação e eventos de navegação via acessibilidade/instrumentação do app. Para React Native, testID/accessibilityLabel ajudam a expor identidades; não basta observar apenas activity ou package, pois várias telas usam os mesmos.
 5. Medir latência dos dumps no device e só então considerar frequência adaptativa. Um serviço de eventos Android exigiria arquitetura, permissões e instalação próprias.
 
