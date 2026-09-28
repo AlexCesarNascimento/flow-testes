@@ -3,7 +3,7 @@ name: flowtest-test
 description: Seleciona e executa validações proporcionais no FlowTest usando testes Node, TypeScript, Playwright e inspeção visual ou acessibilidade conforme a mudança.
 ---
 
-Leia o diff e `package.json`; enumere `tests/` e leia o seletor de testes antes de declarar ausência de cobertura. `npm run typecheck` verifica scripts/testes TypeScript do tooling; ainda não verifica renderer/main/preload inexistentes. `npm run test:related -- <arquivos>` seleciona testes Node do tooling, incluindo o teste de proteção do servidor. Uma mensagem de ausência de testes relacionados não comprova cobertura.
+Leia o diff e `package.json`; enumere `tests/` e leia o seletor de testes antes de declarar ausência de cobertura. `npm run typecheck` verifica tooling/testes; `npm run typecheck:app` verifica o renderer; `npm run build` compila main/preload/renderer. Os E2E padrão exercitam o protótipo, não o app Electron. `npm run test:related -- <arquivos>` seleciona testes Node do tooling, incluindo o teste de proteção do servidor. Uma mensagem de ausência de testes relacionados não comprova cobertura.
 
 Para scripts, rode formatação, lint, types e testes relacionados; para configurações MCP, faça handshake e ao menos uma operação real com `scripts/mcp-smoke.ts`. Confirme descoberta separadamente em cada CLI; handshake pelo SDK não comprova uso pelo agente.
 

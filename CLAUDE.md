@@ -4,9 +4,9 @@ O FlowTest é um produto desktop para criação visual de testes mobile, pensado
 
 ## Estado atual
 
-O protótipo `proto/Design – 00 · FlowTest — protótipo clicável.html` é a referência visual e de interação; o servidor também aceita a localização original na raiz. Há package.json, scripts TypeScript de tooling, verificações de qualidade, testes Node e smoke tests Playwright. Não há aplicação Electron nem fontes React editáveis. Não apresentar a visão de produto abaixo como funcionalidade já implementada.
+O protótipo `proto/Design – 00 · FlowTest — protótipo clicável.html` permanece como referência visual. O app atual tem React/TypeScript (FSD) em `src/renderer`, Electron em `src/main` e bridge em `src/preload`. O recorder em desenvolvimento usa ADB sobre WebUSB e scrcpy; há captura, reprodução e persistência local. Verifique as specs e o código antes de apresentar qualquer parte da visão de produto como concluída.
 
-Comandos: `npm run dev` serve o protótipo em 127.0.0.1:4173; `npm run check` executa checks rápidos; `npm run validate` inclui E2E. Consulte package.json para os scripts atuais e os documentos em docs/ para MCPs, Skills e Hooks.
+Comandos: `npm run dev` inicia Electron via electron-vite; `npm run build` compila main/preload/renderer; `npm run typecheck:app` verifica o renderer. `npm run check` agrega qualidade e testes Node; `npm run validate` inclui E2E do protótipo, servido separadamente por `scripts/serve-prototype.ts`. Esses E2E não validam o recorder real. Consulte package.json e docs/ para comandos e integrações.
 
 ## Domínio do produto
 

@@ -3,7 +3,7 @@ name: flowtest-architecture
 description: Orienta decisões React, TypeScript, Electron e IPC no FlowTest ao projetar módulos ou revisar mudanças de arquitetura e segurança desktop.
 ---
 
-Leia `CLAUDE.md` e a spec do módulo. O repositório atual contém um protótipo HTML e tooling; não invente um runtime Electron nem edite o bundle comprimido para implementar funcionalidades.
+Leia `CLAUDE.md` e a spec do módulo. O repositório contém React/FSD, Electron main/preload e protótipo HTML de referência. Edite as fontes em src/, nunca o bundle do protótipo. O transporte ADB/WebUSB atual está no renderer; não amplie permissões nem confunda esse estado com a arquitetura alvo de ADB no main.
 
 Quando houver fontes React/TypeScript, mantenha estado de domínio (Flow, Action, Step, Dataset, Device, Ambiente) separado do estado transitório da UI. Use uniões discriminadas para tipos de passos e estados de execução, e valide dados de fronteira em runtime. Teste a semântica de loops/condições e preserve a identidade de passos ao editar o Flow. Não adote Zustand, React Flow ou outra biblioteca só porque foi citada no planejamento; confira dependências e a spec.
 

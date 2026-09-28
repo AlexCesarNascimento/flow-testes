@@ -3,7 +3,7 @@ name: flowtest-debug
 description: Investiga bugs de interface e futuros bugs Electron do FlowTest reproduzindo a falha, isolando a camada afetada e verificando a correção.
 ---
 
-Registre ação de entrada, resultado esperado e observado. Descubra se há aplicação Electron ou somente protótipo. No estado atual, use `npm run dev`; não crie uma aplicação Electron fictícia para declarar uma reprodução.
+Registre ação de entrada, resultado esperado e observado. O app atual é React/Electron: `npm run dev` inicia electron-vite. O servidor do protótipo é separado; reproduza o recorder no app real.
 
 Reproduza com Playwright MCP, tirando snapshot antes de interagir. Capture exceções/console e, se relevante, Network e screenshot com Chrome DevTools. Inspecione a imagem gerada. Não conclua que um clique funcionou só porque a ferramenta retornou sucesso: verifique a mudança observável no DOM ou estado.
 
