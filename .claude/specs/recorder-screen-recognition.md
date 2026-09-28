@@ -33,3 +33,25 @@ Reutilizar o transporte WebUSB existente sem ampliar IPC, permissões ou introdu
 - Parar/reiniciar captura invalida callbacks da sessão anterior.
 - Round-trip JSON preserva assinaturas; gravações v1 antigas continuam legíveis.
 - Testes proporcionais, TypeScript e build executados; evidências de UI e limites documentados.
+
+## Delay entre passos
+
+Por orientação do usuário, a lista exibe “Delay até o próximo” em segundos, editável entre 0 e 300 s, em vez de mostrar o instante da gravação. `Step.delayAfterMs` guarda milissegundos e é preservado no JSON v1.1. Captura preenche o delay do step anterior com o intervalo observado até o seguinte (limitado a 300 s); último step começa com zero. Fluxos antigos sem o campo usam zero. Playback espera o delay após sucesso e antes de iniciar o próximo step; último step não espera. Cancelamento interrompe também esse intervalo. O tempo histórico permanece apenas como metadado legado de exportação.
+
+## Seletores sem fallback por coordenadas
+
+Correção após evidência enviada pelo usuário: toques sem identificação não gravam coordenadas em selectors nem as exibem como label. O step fica “Elemento não identificado — grave novamente” e não executa. Gravações legadas por coordenadas continuam importáveis para revisão, mas esse fallback é removido no import/export e recusado pelo executor. Coordenadas só existem transitoriamente para associar o evento físico a um node e para tocar o centro do node encontrado na hierarquia atual.
+
+O playback combina resource-id, accessibility-id e texto no mesmo elemento; IDs repetidos (por exemplo dois campos editText) exigem uma combinação única. Agência e conta são distinguidas pelo texto disponível, sem usar posição, ordem do XML ou índice. Identidades contraditórias, ausentes ou ambíguas falham explicitamente. A UI avisa enquanto a primeira hierarquia ainda está sendo preparada; uma tela que não expõe dados de acessibilidade pode precisar de testID/accessibilityLabel no aplicativo testado.
+
+## Abertura de app independente do ícone
+
+Resolver o launcher padrão via intent HOME. Se um TAP com snapshot de origem nesse launcher for seguido por uma assinatura estável de outro pacote, converter o mesmo ID em `launchApp`, com `value` igual ao pacote observado (por exemplo `com.test`). Limpar seletores do ícone e preservar o delay. A execução abre o pacote pela intent LAUNCHER e depois reconhece a tela do app. A tela do launcher não gera pré-condição no fluxo. Se o launcher não puder ser resolvido, não adivinhar o pacote pelo rótulo. Links internos e transições entre apps que não partem do launcher continuam como interações normais. Package ID não é URI de deeplink; deeplinks para telas internas ficam fora desta entrega.
+
+## Cronômetro e diagnóstico de espera
+
+Novo pedido: mostrar cronômetro junto ao resultado da execução. Inicia em zero a cada play; continua contando durante ação, polling e delay; congela ao concluir, falhar ou cancelar. Durante delay mostra também o restante, sem anunciar cada décimo para leitores de tela. O Play principal executa todos os steps em ordem, independentemente das marcações. Separar delay intencional de espera por condição, com prazo e cancelamento. O caso enviado inclui delay de 113321 ms: esse intervalo deve ficar visível, sem alterar silenciosamente o valor escolhido pelo usuário.
+
+## Polling inspirado no Chrome Recorder
+
+Pesquisa e fontes em `docs/CHROME_RECORDER_RESEARCH.md`. Espera de elemento e assinatura usa polling serial com intervalo de 500 ms após leitura, deadline absoluto de 15 s e cancelamento inclusive se a leitura travar. Elemento ausente pode ser tentado novamente; elemento único precisa estar habilitado e apresentar bounds iguais em duas leituras consecutivas. Ambiguidade e erro de transporte falham sem escolher posição ou primeiro match. Progresso informa condição e contagem de leituras. Abertura de app informa prazo de 10 s para resposta do comando; ausência de resposta deve falhar e impedir próximos steps. Marcações não filtram o Play principal; somente a ação individual do inspector executa um único step. O relato do usuário identifica a abertura do Itaú como o step parado; a causa no device ainda depende de evidência real.
