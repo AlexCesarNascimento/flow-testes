@@ -93,7 +93,7 @@ export function VisaoGeralPage() {
                   : c.n === 5
                     ? '/flows'
                     : c.n === 6
-                      ? '/dados/datasets'
+                      ? '/variaveis'
                       : '/execucoes/atual',
               )
             }

@@ -21,6 +21,8 @@ import type {
   DetectedDevice,
   DeviceMirrorPort,
 } from '@/shared/lib/device-mirror';
+import type { IAdbPort } from '@/shared/lib/adb-runner';
+import { setSnapshotSource } from '@/shared/lib/device-snapshot';
 
 const SCRCPY_SERVER_VERSION = '2.7';
 const SCRCPY_SERVER_URL = `https://github.com/Genymobile/scrcpy/releases/download/v${SCRCPY_SERVER_VERSION}/scrcpy-server-v${SCRCPY_SERVER_VERSION}`;
@@ -107,7 +109,7 @@ function toReadableStream(bytes: Uint8Array): ReadableStream<Uint8Array> {
 
 // ─── Adapter ─────────────────────────────────────────────────────────────────
 
-export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
+export class ScrcpyWebUsbAdapter implements DeviceMirrorPort, IAdbPort {
   readonly adapterName = 'ScrcpyWebUsbAdapter';
 
   private _credentialStore = new LocalStorageCredentialStore();
@@ -115,6 +117,11 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
   private _client: AdbScrcpyClient<AdbScrcpyOptions2_7<true>> | null = null;
   private _decoder: WebCodecsVideoDecoder | null = null;
   private _abortController: AbortController | null = null;
+  private _adb: Adb | null = null;
+
+  getAdb(): Adb | null {
+    return this._adb;
+  }
 
   async watchDevices(callbacks: {
     onConnect: (device: DetectedDevice) => void;
@@ -214,6 +221,7 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
 
     console.log('[ScrcpyAdapter] ADB autenticado. Iniciando scrcpy...');
     const adb = new Adb(transport);
+    this._adb = adb;
 
     const serverBytes = await fetchServerBytes();
     console.log('[ScrcpyAdapter] Server baixado, enviando para device...');
@@ -257,12 +265,25 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
     canvas.height = videoStream.height || 640;
 
     const renderer = new BitmapVideoFrameRenderer(canvas);
+    const controller = new AbortController();
+    this._abortController = controller;
+    let hasFrame = false;
     this._decoder = new WebCodecsVideoDecoder({
       codec: ScrcpyVideoCodecId.H264,
-      renderer,
+      renderer: {
+        setSize: (width, height) => renderer.setSize(width, height),
+        draw: async (frame) => {
+          await renderer.draw(frame);
+          // Não capturar canvas vazio enquanto o primeiro frame não chegou.
+          if (!hasFrame && !controller.signal.aborted) {
+            hasFrame = true;
+            setSnapshotSource(() =>
+              controller.signal.aborted ? null : canvas,
+            );
+          }
+        },
+      },
     });
-
-    this._abortController = new AbortController();
 
     videoStream.stream
       .pipeTo(this._decoder.writable, { signal: this._abortController.signal })
@@ -274,11 +295,13 @@ export class ScrcpyWebUsbAdapter implements DeviceMirrorPort {
   }
 
   async stopStream(): Promise<void> {
+    setSnapshotSource(null);
     this._abortController?.abort();
     this._abortController = null;
     this._decoder?.dispose();
     this._decoder = null;
     await this._client?.close();
     this._client = null;
+    this._adb = null;
   }
 }

@@ -1,7 +1,17 @@
-import { ChevronRight, Sparkles, Tag, Settings } from 'lucide-react';
+import {
+  ChevronRight,
+  Sparkles,
+  Tag,
+  Settings,
+  PanelLeft,
+  PanelRight,
+  PanelBottom,
+} from 'lucide-react';
 import { useLocation } from 'react-router-dom';
 import { useRecorderStore } from '@/entities/recorder';
 import { useAmbienteStore } from '@/entities/ambiente';
+import { useDeviceStore } from '@/entities/device';
+import { useLayoutStore } from '../model/layout-store';
 import './top-bar.scss';
 
 type BreadcrumbSegment = { label: string };
@@ -25,43 +35,25 @@ function useBreadcrumb(): { segments: BreadcrumbSegment[]; hint: string } {
   if (pathname.startsWith('/flows'))
     return {
       segments: [{ label: 'Flows' }],
-      hint: 'Arraste blocos da paleta e encaixe uns nos outros · dentro de "Para cada..."',
+      hint: 'Selecione um bloco salvo no Recorder para revisar seus steps e parâmetros.',
     };
   if (pathname.startsWith('/acoes'))
     return {
       segments: [{ label: 'Ações' }],
       hint: 'Ações reutilizáveis salvas a partir do Recorder',
     };
-  if (pathname.startsWith('/dados')) {
-    const tab = pathname.split('/')[2] ?? 'datasets';
-    const tabLabel =
-      (
-        {
-          datasets: 'Datasets',
-          variaveis: 'Variáveis',
-          ambientes: 'Ambientes',
-          secrets: 'Secrets',
-        } as Record<string, string>
-      )[tab] ?? 'Dados';
+  if (pathname.startsWith('/variaveis'))
     return {
-      segments: [{ label: 'Dados' }, { label: tabLabel }],
-      hint: 'Datasets, variáveis, ambientes e secrets do projeto',
+      segments: [{ label: 'Variáveis' }],
+      hint: 'Variáveis e massas de teste do projeto',
     };
-  }
   if (pathname.startsWith('/execucoes/atual'))
     return {
       segments: [{ label: 'Execuções' }, { label: '#24' }],
       hint: 'Selecione um step para inspecionar',
     };
-  if (pathname.startsWith('/execucoes/matriz'))
-    return {
-      segments: [{ label: 'Execuções' }, { label: 'Matriz' }],
-      hint: 'Dataset × device × ambiente — cada célula é uma execução',
-    };
   if (pathname.startsWith('/execucoes/relatorios'))
     return { segments: [{ label: 'Relatórios' }], hint: '' };
-  if (pathname.startsWith('/dispositivos'))
-    return { segments: [{ label: 'Dispositivos' }], hint: '' };
   return {
     segments: [{ label: 'Visão geral' }],
     hint: 'Siga a jornada abaixo ou navegue pela barra lateral',
@@ -70,8 +62,14 @@ function useBreadcrumb(): { segments: BreadcrumbSegment[]; hint: string } {
 
 export function TopBar() {
   const ambiente = useAmbienteStore((s) => s.ambiente);
-  const device = useAmbienteStore((s) => s.device);
+  const deviceName = useDeviceStore((s) => s.deviceName);
+  const deviceStatus = useDeviceStore((s) => s.status);
   const { segments, hint } = useBreadcrumb();
+
+  const deviceLabel =
+    deviceStatus === 'streaming' || deviceStatus === 'connecting'
+      ? (deviceName ?? 'Conectando…')
+      : 'Nenhum device';
 
   return (
     <header className="top-bar">
@@ -116,11 +114,16 @@ export function TopBar() {
         <button
           className="top-bar__button"
           disabled
-          aria-label={`Dispositivo: ${device}`}
+          aria-label={`Dispositivo: ${deviceLabel}`}
         >
-          <span className="top-bar__device-dot" aria-hidden="true" />
-          {device}
+          <span
+            className={`top-bar__device-dot${deviceStatus === 'streaming' ? ' top-bar__device-dot--connected' : ''}`}
+            aria-hidden="true"
+          />
+          {deviceLabel}
         </button>
+
+        <SidesheetToggles />
 
         <button
           className="top-bar__button top-bar__button--icon-only"
@@ -131,5 +134,62 @@ export function TopBar() {
         </button>
       </div>
     </header>
+  );
+}
+
+function SidesheetToggles() {
+  const leftTrayCollapsed = useLayoutStore((s) => s.leftTrayCollapsed);
+  const rightTrayCollapsed = useLayoutStore((s) => s.rightTrayCollapsed);
+  const toggleLeftTray = useLayoutStore((s) => s.toggleLeftTray);
+  const toggleRightTray = useLayoutStore((s) => s.toggleRightTray);
+  return (
+    <div className="top-bar__sidesheets" role="group" aria-label="Painéis">
+      <button
+        type="button"
+        className={`top-bar__sidesheet${!leftTrayCollapsed ? ' top-bar__sidesheet--on' : ''}`}
+        onClick={toggleLeftTray}
+        aria-pressed={!leftTrayCollapsed}
+        aria-label={
+          leftTrayCollapsed
+            ? 'Mostrar bandeja esquerda'
+            : 'Recolher bandeja esquerda'
+        }
+        title={
+          leftTrayCollapsed
+            ? 'Mostrar bandeja esquerda'
+            : 'Recolher bandeja esquerda'
+        }
+      >
+        <PanelLeft size={14} aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className="top-bar__sidesheet"
+        disabled
+        aria-disabled="true"
+        aria-label="Painel inferior (em breve)"
+        title="Painel inferior (em breve)"
+      >
+        <PanelBottom size={14} aria-hidden="true" />
+      </button>
+      <button
+        type="button"
+        className={`top-bar__sidesheet${!rightTrayCollapsed ? ' top-bar__sidesheet--on' : ''}`}
+        onClick={toggleRightTray}
+        aria-pressed={!rightTrayCollapsed}
+        aria-label={
+          rightTrayCollapsed
+            ? 'Mostrar bandeja direita'
+            : 'Recolher bandeja direita'
+        }
+        title={
+          rightTrayCollapsed
+            ? 'Mostrar bandeja direita'
+            : 'Recolher bandeja direita'
+        }
+      >
+        <PanelRight size={14} aria-hidden="true" />
+      </button>
+    </div>
   );
 }

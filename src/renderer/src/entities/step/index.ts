@@ -1,2 +1,2 @@
-export type { Selector, StepType, Step } from './model/index';
-export { MOCK_STEPS } from './model/index';
+export type { Selector, StepType, Step } from './model/index.ts';
+export { MOCK_STEPS, stepDisplayLabel } from './model/index.ts';

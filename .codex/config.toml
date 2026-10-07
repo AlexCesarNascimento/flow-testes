@@ -14,6 +14,18 @@ command = "node"
 args = ["node_modules/@playwright/mcp/cli.js","--headless","--isolated","--browser","chromium","--output-dir","artifacts/playwright-mcp"]
 startup_timeout_sec = 45
 
+[mcp_servers.playwright.tools.browser_navigate]
+approval_mode = "approve"
+
+[mcp_servers.playwright.tools.browser_click]
+approval_mode = "approve"
+
+[mcp_servers.playwright.tools.browser_close]
+approval_mode = "approve"
+
+[mcp_servers.playwright.tools.browser_evaluate]
+approval_mode = "approve"
+
 [mcp_servers.chrome-devtools]
 command = "node"
 args = ["scripts/chrome-devtools.ts"]

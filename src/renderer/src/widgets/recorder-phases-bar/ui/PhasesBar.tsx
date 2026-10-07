@@ -6,15 +6,20 @@ interface Props {
   onPhaseChange: (p: RecorderPhase) => void;
   recording: boolean;
   recordingSeconds: number;
+  onStartRecording: () => void;
+  onFinishRecording: () => void;
 }
 
+// Gravar+Editar são um mesmo workspace agora. Só há dois passos visuais:
+// (1) montar o fluxo (gravando + editando) e (2) salvar como Action.
 const PHASES: { key: RecorderPhase; label: string; n: number }[] = [
-  { key: 'gravar', label: 'Gravar', n: 1 },
-  { key: 'editar', label: 'Editar e parametrizar', n: 2 },
-  { key: 'salvar', label: 'Salvar como Action', n: 3 },
+  { key: 'gravar', label: 'Fluxo', n: 1 },
+  { key: 'salvar', label: 'Salvar como Action', n: 2 },
 ];
 
 function phaseIndex(p: RecorderPhase) {
+  // gravar e editar mapeiam para o mesmo tab (índice 0)
+  if (p === 'gravar' || p === 'editar') return 0;
   return PHASES.findIndex((ph) => ph.key === p);
 }
 
@@ -31,6 +36,8 @@ export function PhasesBar({
   onPhaseChange,
   recording,
   recordingSeconds,
+  onStartRecording,
+  onFinishRecording,
 }: Props) {
   const activeIndex = phaseIndex(phase);
 
@@ -101,42 +108,62 @@ export function PhasesBar({
         })}
       </div>
 
-      {phase === 'gravar' && (
+      {(phase === 'gravar' || phase === 'editar') && (
         <div className="phases-bar__controls">
-          <div className="phases-bar__recording">
-            <span
-              className={`phases-bar__rec-dot${recording ? ' phases-bar__rec-dot--pulsing' : ''}`}
-            />
-            <span className="phases-bar__rec-label">Gravando</span>
-            <span className="phases-bar__rec-time">
-              {formatTime(recordingSeconds)}
-            </span>
-          </div>
+          {recording ? (
+            <>
+              <div className="phases-bar__recording">
+                <span className="phases-bar__rec-dot phases-bar__rec-dot--pulsing" />
+                <span className="phases-bar__rec-label">Gravando</span>
+                <span className="phases-bar__rec-time">
+                  {formatTime(recordingSeconds)}
+                </span>
+              </div>
 
-          <button
-            className="phases-bar__btn"
-            disabled
-            aria-label="Pausar gravação"
-          >
-            <svg
-              width="10"
-              height="10"
-              viewBox="0 0 24 24"
-              fill="currentColor"
-              aria-hidden="true"
+              <button
+                className="phases-bar__btn"
+                disabled
+                aria-label="Pausar gravação"
+              >
+                <svg
+                  width="10"
+                  height="10"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  aria-hidden="true"
+                >
+                  <rect x="6" y="4" width="4" height="16" />
+                  <rect x="14" y="4" width="4" height="16" />
+                </svg>
+                Pausar
+              </button>
+
+              <button
+                onClick={onFinishRecording}
+                className="phases-bar__btn phases-bar__btn--primary"
+                aria-label="Finalizar gravação"
+              >
+                Finalizar
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={onStartRecording}
+              className="phases-bar__btn phases-bar__btn--primary"
+              aria-label="Iniciar gravação"
             >
-              <rect x="6" y="4" width="4" height="16" />
-              <rect x="14" y="4" width="4" height="16" />
-            </svg>
-            Pausar
-          </button>
-
-          <button
-            onClick={() => onPhaseChange('editar')}
-            className="phases-bar__btn phases-bar__btn--primary"
-          >
-            Finalizar
-          </button>
+              <svg
+                width="10"
+                height="10"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                aria-hidden="true"
+              >
+                <circle cx="12" cy="12" r="8" />
+              </svg>
+              Iniciar gravação
+            </button>
+          )}
         </div>
       )}
     </div>

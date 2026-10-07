@@ -1,8 +1,15 @@
 .app-shell {
   display: flex;
+  flex-direction: column;
   height: 100vh;
   overflow: hidden;
   background: var(--color-bg);
+
+  &__content {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+  }
 
   &__sidebar {
     flex-shrink: 0;

@@ -1,0 +1,53 @@
+.recording-code {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  background: var(--color-surface);
+  border-top: 1px solid var(--color-border-strong);
+  &__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 8px 12px;
+    font-size: 12px;
+    color: var(--color-text-1);
+  }
+  &__toolbar {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 0 12px;
+    font-size: 11px;
+    color: var(--color-text-2);
+  }
+  button,
+  select {
+    color: var(--color-text-1);
+    background: var(--color-elevated);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    padding: 4px 8px;
+    cursor: pointer;
+  }
+  &__hint {
+    margin: 8px 12px;
+    color: var(--color-text-2);
+    font-size: 11px;
+  }
+  &__source {
+    resize: none;
+    flex: 1;
+    width: 100%;
+    min-height: 100px;
+    padding: 12px;
+    border: 0;
+    border-top: 1px solid var(--color-border);
+    background: var(--color-bg);
+    color: var(--color-text-1);
+    font: 11px/1.6 var(--font-family-mono);
+    white-space: pre;
+    tab-size: 2;
+  }
+}

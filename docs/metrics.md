@@ -4,7 +4,9 @@
 
 | Recurso                    | Tipo        | Usos |
 | -------------------------- | ----------- | ---: |
-| general-purpose agent      | Agent       |    4 |
+| general-purpose agent      | Agent       |    5 |
+| ecc:react-reviewer         | ECC Agent   |    1 |
+| ecc:code-architect         | ECC Agent   |    1 |
 | Explore agent              | Agent       |    1 |
 | frontend-a11y              | ECC Skill   |    1 |
 | hexagonal-architecture     | ECC Skill   |    1 |
@@ -13,7 +15,7 @@
 | react-performance          | ECC Skill   |    1 |
 | design-system              | ECC Skill   |    1 |
 | code-review                | ECC Command |    1 |
-| react-review               | ECC Command |    1 |
+| react-review               | ECC Command |    2 |
 | quality-gate               | ECC Command |    1 |
 | flowtest-review            | Skill local |    1 |
 | flowtest-architecture      | Skill local |    0 |

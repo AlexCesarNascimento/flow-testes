@@ -1,3 +1,5 @@
+import type { ScreenSignature } from '../../../shared/lib/screen-signature/index.ts';
+
 export type Selector = {
   type:
     | 'resourceId'
@@ -15,7 +17,9 @@ export type StepType =
   | 'launchApp'
   | 'tap'
   | 'inputText'
+  | 'secureKeypad'
   | 'waitForElement'
+  | 'waitForPage'
   | 'assert'
   | 'wait'
   | 'swipe'
@@ -31,6 +35,18 @@ export type Step = {
   time: string;
   selected: boolean;
   selectors: Selector[];
+  /**
+   * true = seletor ainda sendo resolvido em background (uiautomator dump).
+   * Step foi criado imediatamente ao capturar o toque, sem identidade
+   * executável. Quando o dump resolve, o step é atualizado e pending vira
+   * false.
+   */
+  pending?: boolean;
+  screenSignature?: ScreenSignature;
+  /** Espera após este step e antes do próximo, em milissegundos. */
+  delayAfterMs?: number;
+  /** Limite total personalizado da ação em ms (1 a 120 s). */
+  timeoutMs?: number;
 };
 
 export const MOCK_STEPS: Step[] = [
@@ -56,7 +72,7 @@ export const MOCK_STEPS: Step[] = [
     type: 'tap',
     label: 'Elemento "Digite aqui"',
     time: '00:05',
-    selected: true,
+    selected: false,
     selectors: [
       {
         type: 'accessibilityId',
@@ -123,7 +139,7 @@ export const MOCK_STEPS: Step[] = [
     type: 'tap',
     label: 'Elemento "Digite sua senha"',
     time: '00:10',
-    selected: true,
+    selected: false,
     selectors: [
       {
         type: 'accessibilityId',
@@ -148,7 +164,7 @@ export const MOCK_STEPS: Step[] = [
     type: 'inputText',
     label: '••••••••',
     time: '00:12',
-    selected: true,
+    selected: false,
     selectors: [
       {
         type: 'accessibilityId',
@@ -168,7 +184,7 @@ export const MOCK_STEPS: Step[] = [
     type: 'tap',
     label: 'Elemento "Entrar"',
     time: '00:14',
-    selected: true,
+    selected: false,
     selectors: [
       {
         type: 'accessibilityId',
@@ -205,3 +221,20 @@ export const MOCK_STEPS: Step[] = [
     ],
   },
 ];
+
+/** Gravações antigas podem conter labels por coordenadas: não os apresente como identidade. */
+export function stepDisplayLabel(step: Step): string {
+  if (step.type === 'secureKeypad')
+    return `Digitar senha no teclado${/^\{\{[a-zA-Z0-9_]+\}\}$/.test(step.value ?? '') ? ` · ${step.value}` : ''}`;
+  if (
+    ['tap', 'longPress', 'swipe'].includes(step.type) &&
+    !step.selectors.some((s) =>
+      ['resourceId', 'accessibilityId', 'text'].includes(s.type),
+    )
+  ) {
+    return step.pending
+      ? 'Identificando elemento…'
+      : 'Elemento não identificado — grave novamente';
+  }
+  return step.label;
+}

@@ -1,0 +1,15 @@
+{
+  "env": {
+    "GATEGUARD_EXEMPT_GLOBS": "src/**"
+  },
+  "permissions": {
+    "allow": [
+      "Bash(xcrun devicectl *)",
+      "mcp__claude-in-chrome__browser_batch",
+      "mcp__claude-in-chrome__read_page",
+      "mcp__claude-in-chrome__get_page_text",
+      "mcp__claude-in-chrome__tabs_context_mcp",
+      "mcp__claude-in-chrome__navigate"
+    ]
+  }
+}

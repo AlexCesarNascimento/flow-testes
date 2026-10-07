@@ -20,6 +20,7 @@
     "test": "node --test --experimental-strip-types 'tests/unit/**/*.ts'",
     "test:related": "node scripts/test-related.ts",
     "test:e2e": "playwright test",
+    "test:recorder": "playwright test --config playwright.recorder.config.ts",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run typecheck:app && npm test",
     "validate": "npm run check && npm run test:e2e"
   },
@@ -45,6 +46,7 @@
     "vite": "^8.3.0"
   },
   "dependencies": {
+    "@xyflow/react": "^12.12.0",
     "@yume-chan/adb": "^2.6.4",
     "@yume-chan/adb-backend-webusb": "0.0.19",
     "@yume-chan/adb-scrcpy": "^2.3.2",

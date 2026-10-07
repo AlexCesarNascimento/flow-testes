@@ -1,0 +1,147 @@
+.variaveis-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+
+  &__body {
+    flex: 1;
+    overflow-y: auto;
+    padding: 20px;
+
+    &::-webkit-scrollbar {
+      width: 4px;
+    }
+    &::-webkit-scrollbar-track {
+      background: transparent;
+    }
+    &::-webkit-scrollbar-thumb {
+      background: var(--color-border-strong);
+      border-radius: 2px;
+    }
+  }
+
+  &__desc {
+    font-size: 13px;
+    color: var(--color-text-2);
+    margin-bottom: 16px;
+    line-height: 1.6;
+  }
+
+  &__toolbar {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+
+  &__input {
+    flex: 1;
+    padding: 6px 10px;
+    background: var(--color-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 6px;
+    color: var(--color-text-1);
+    font-size: 13px;
+  }
+
+  &__btn {
+    padding: 6px 14px;
+    background: var(--color-elevated);
+    color: var(--color-text-1);
+    border: 1px solid var(--color-border-strong);
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 13px;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.5;
+    }
+
+    &--primary {
+      background: var(--color-accent);
+      color: #fff;
+      border: none;
+    }
+  }
+
+  &__empty {
+    padding: 24px;
+    border: 1px dashed var(--color-border);
+    border-radius: 8px;
+    text-align: center;
+    color: var(--color-text-3);
+    font-size: 13px;
+  }
+
+  &__table-wrap {
+    overflow-x: auto;
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+
+    thead tr {
+      border-bottom: 1px solid var(--color-border);
+      color: var(--color-text-3);
+      font-size: 11px;
+      text-transform: uppercase;
+    }
+
+    th {
+      padding: 8px 6px;
+      text-align: left;
+    }
+
+    tbody tr {
+      border-bottom: 1px solid var(--color-border);
+    }
+
+    td {
+      padding: 6px;
+    }
+  }
+
+  &__col-name {
+    margin-right: 6px;
+  }
+
+  &__col-remove {
+    background: transparent;
+    border: none;
+    color: var(--color-red);
+    cursor: pointer;
+    font-size: 12px;
+  }
+
+  &__cell-input {
+    width: 100%;
+    padding: 4px 6px;
+    background: var(--color-elevated);
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    color: var(--color-text-1);
+    font-size: 13px;
+  }
+
+  &__row-remove {
+    background: transparent;
+    border: none;
+    color: var(--color-red);
+    cursor: pointer;
+    font-size: 14px;
+
+    &:disabled {
+      cursor: not-allowed;
+      opacity: 0.3;
+    }
+  }
+
+  &__footer {
+    margin-top: 12px;
+    font-size: 12px;
+    color: var(--color-text-3);
+  }
+}

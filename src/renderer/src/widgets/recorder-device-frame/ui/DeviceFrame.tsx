@@ -1,7 +1,9 @@
 import { useEffect, useRef } from 'react';
 import type { RecorderPhase } from '@/entities/recorder';
+import { useRecorderStore } from '@/entities/recorder';
 import { useDeviceStore } from '@/entities/device';
 import { setCanvas, init, dispose } from '@/features/device-mirror';
+import { startCapture, stopCapture } from '@/features/event-capture';
 import './device-frame.scss';
 
 interface Props {
@@ -41,6 +43,8 @@ export function DeviceFrame({ phase }: Props) {
   const isLive = phase === 'gravar';
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const status = useDeviceStore((s) => s.status);
+  const recording = useRecorderStore((s) => s.recording);
+  const lastPoint = useRecorderStore((s) => s.lastCapturedPoint);
   const errorMessage = useDeviceStore((s) => s.errorMessage);
   const isStreaming = status === 'streaming';
   const isConnecting = status === 'connecting';
@@ -57,6 +61,18 @@ export function DeviceFrame({ phase }: Props) {
     };
   }, []);
 
+  // Inicia/para captura de eventos quando a gravação muda
+  useEffect(() => {
+    if (recording && isStreaming) {
+      void startCapture();
+    } else {
+      void stopCapture();
+    }
+    return () => {
+      void stopCapture();
+    };
+  }, [recording, isStreaming]);
+
   return (
     <div className="device-frame">
       <div className="device-frame__shell">
@@ -67,6 +83,22 @@ export function DeviceFrame({ phase }: Props) {
             ref={canvasRef}
             className={`device-frame__canvas${isStreaming ? '' : ' device-frame__canvas--hidden'}`}
           />
+
+          {isStreaming &&
+            lastPoint &&
+            lastPoint.displayWidth > 0 &&
+            lastPoint.displayHeight > 0 && (
+              <div className="device-frame__ripple-layer" aria-hidden="true">
+                <span
+                  key={lastPoint.seq}
+                  className="device-frame__ripple"
+                  style={{
+                    left: `${(lastPoint.x / lastPoint.displayWidth) * 100}%`,
+                    top: `${(lastPoint.y / lastPoint.displayHeight) * 100}%`,
+                  }}
+                />
+              </div>
+            )}
 
           {isIdle && <IdleState />}
 

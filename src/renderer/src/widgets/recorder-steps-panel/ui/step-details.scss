@@ -1,0 +1,171 @@
+.step-details {
+  margin: 0;
+  padding: 0 0 10px;
+  background: transparent;
+  color: var(--color-text-2);
+  font-size: 12px;
+  min-width: 0;
+
+  code {
+    font-family: var(--font-family-mono);
+    overflow-wrap: anywhere;
+    white-space: pre-wrap;
+  }
+  h4 {
+    margin: 14px 0 8px;
+    color: var(--color-text-1);
+    font-size: 12px;
+  }
+  h4 span {
+    color: var(--color-text-2);
+    font-weight: 400;
+  }
+  &__properties {
+    margin: 0;
+    display: grid;
+    gap: 8px;
+  }
+  &__keypad {
+    display: grid;
+    gap: 10px;
+    margin-top: 14px;
+    padding: 12px;
+    border: 1px solid
+      color-mix(in srgb, var(--color-purple) 35%, var(--color-border));
+    border-radius: var(--radius-sm);
+    background: color-mix(in srgb, var(--color-purple) 8%, var(--color-bg));
+  }
+  &__keypad strong {
+    color: var(--color-text-1);
+  }
+  &__keypad p {
+    margin: 0;
+    line-height: 1.5;
+  }
+  &__keypad label {
+    display: grid;
+    gap: 6px;
+  }
+  &__keypad select,
+  &__keypad button {
+    min-height: 32px;
+    padding: 6px 8px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--color-elevated);
+    color: var(--color-text-1);
+  }
+  &__keypad button {
+    cursor: pointer;
+    justify-self: start;
+  }
+  &__keypad button:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  &__keypad-variable {
+    display: grid;
+    gap: 6px;
+    margin-top: 14px;
+    color: var(--color-text-1);
+  }
+  &__keypad-variable select {
+    min-height: 32px;
+    padding: 6px 8px;
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    background: var(--color-elevated);
+    color: var(--color-text-1);
+  }
+  &__properties div {
+    display: grid;
+    grid-template-columns: 120px minmax(0, 1fr);
+    gap: 8px;
+  }
+  dt {
+    color: var(--color-text-2);
+  }
+  dd {
+    margin: 0;
+    color: var(--color-text-1);
+    overflow-wrap: anywhere;
+  }
+  &__selectors {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    gap: 8px;
+  }
+  &__selectors li {
+    display: grid;
+    gap: 6px;
+    padding: 10px;
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm);
+  }
+  &__selector-heading {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    font-size: 11px;
+  }
+  &__stability {
+    font-size: 10px;
+    border-radius: var(--radius-sm);
+    padding: 2px 5px;
+    background: var(--color-elevated);
+  }
+  &__stability--stable {
+    color: var(--color-accent-text);
+  }
+  &__stability--medium {
+    color: var(--color-amber);
+  }
+  &__stability--fragile {
+    color: var(--color-red);
+  }
+  &__timeout {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+    margin-top: 16px;
+    color: var(--color-text-1);
+  }
+  &__timeout small {
+    display: block;
+    font-size: 11px;
+    color: var(--color-text-2);
+  }
+  &__timeout input {
+    width: 100px;
+    background: var(--color-bg);
+    color: var(--color-text-1);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    padding: 6px;
+  }
+  &__hint {
+    margin: 6px 0;
+    font-size: 11px;
+    line-height: 1.5;
+  }
+  &__actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    margin-top: 12px;
+  }
+  &__actions > button {
+    padding: 4px 8px;
+    background: var(--color-elevated);
+    color: var(--color-text-1);
+    border: 1px solid var(--color-border-strong);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+  }
+}
